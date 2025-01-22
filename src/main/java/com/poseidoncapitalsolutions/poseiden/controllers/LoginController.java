@@ -1,6 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
-import com.nnk.springboot.repositories.UserRepository;
+import com.poseidoncapitalsolutions.poseiden.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

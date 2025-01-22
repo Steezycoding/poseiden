@@ -1,7 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
-import com.nnk.springboot.domain.User;
-import com.nnk.springboot.repositories.UserRepository;
+import com.poseidoncapitalsolutions.poseiden.domain.User;
+import com.poseidoncapitalsolutions.poseiden.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;

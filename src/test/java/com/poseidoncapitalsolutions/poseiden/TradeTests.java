@@ -1,7 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden;
 
-import com.nnk.springboot.domain.Trade;
-import com.nnk.springboot.repositories.TradeRepository;
+import com.poseidoncapitalsolutions.poseiden.domain.Trade;
+import com.poseidoncapitalsolutions.poseiden.repositories.TradeRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

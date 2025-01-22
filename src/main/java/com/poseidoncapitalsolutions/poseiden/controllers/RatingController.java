@@ -1,6 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
-import com.nnk.springboot.domain.Rating;
+import com.poseidoncapitalsolutions.poseiden.domain.Rating;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

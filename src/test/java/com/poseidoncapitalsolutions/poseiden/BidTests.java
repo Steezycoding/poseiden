@@ -1,7 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden;
 
-import com.nnk.springboot.domain.BidList;
-import com.nnk.springboot.repositories.BidListRepository;
+import com.poseidoncapitalsolutions.poseiden.domain.BidList;
+import com.poseidoncapitalsolutions.poseiden.repositories.BidListRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

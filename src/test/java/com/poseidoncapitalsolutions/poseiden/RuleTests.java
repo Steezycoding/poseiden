@@ -1,7 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden;
 
-import com.nnk.springboot.domain.RuleName;
-import com.nnk.springboot.repositories.RuleNameRepository;
+import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
+import com.poseidoncapitalsolutions.poseiden.repositories.RuleNameRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

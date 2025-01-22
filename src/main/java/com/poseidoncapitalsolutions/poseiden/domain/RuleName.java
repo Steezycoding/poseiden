@@ -1,6 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.domain;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.sql.Timestamp;
 

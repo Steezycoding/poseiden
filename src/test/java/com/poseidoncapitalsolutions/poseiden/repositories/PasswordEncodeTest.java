@@ -1,4 +1,4 @@
-package com.poseidoncapitalsolutions.poseiden;
+package com.poseidoncapitalsolutions.poseiden.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

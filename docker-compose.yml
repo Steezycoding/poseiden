@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:lts
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: toorroot
+      MYSQL_DATABASE: demo
+      MYSQL_USER: poseiden
+      MYSQL_PASSWORD: poseidoncapitalsolutions
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./doc/data.sql:/docker-entrypoint-initdb.d/1_data.sql
+
+volumes:
+  mysql_data:

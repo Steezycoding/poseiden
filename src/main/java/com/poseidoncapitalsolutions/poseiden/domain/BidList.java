@@ -1,6 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.domain;
 
-import org.springframework.beans.factory.annotation.Required;
+// import org.springframework.beans.factory.annotation.Required;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Digits;
@@ -11,5 +11,7 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "bidlist")
 public class BidList {
-    // TODO: Map columns in data table BIDLIST with corresponding java fields
+	@Id
+	@GeneratedValue(strategy= GenerationType.AUTO)
+	private Integer id;
 }

@@ -92,8 +92,8 @@ CREATE TABLE rulename (
   PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS user;
-CREATE TABLE user (
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
   id tinyint(4) NOT NULL AUTO_INCREMENT,
   username VARCHAR(125),
   password VARCHAR(125),
@@ -103,8 +103,8 @@ CREATE TABLE user (
   PRIMARY KEY (id)
 );
 
-INSERT INTO user (fullname, username, password, role)
+INSERT INTO users (fullname, username, password, role)
 VALUES ('Administrator', 'admin', '$2a$10$pBV8ILO/s/nao4wVnGLrh.sa/rnr5pDpbeC4E.KNzQWoy8obFZdaa', 'ADMIN');
 
-INSERT INTO user (fullname, username, password, role)
+INSERT INTO users (fullname, username, password, role)
 VALUES ('User', 'user', '$2a$10$pBV8ILO/s/nao4wVnGLrh.sa/rnr5pDpbeC4E.KNzQWoy8obFZdaa', 'USER');

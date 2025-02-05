@@ -19,7 +19,7 @@
 
 ## Implement a Feature
 1. Create mapping domain class and place in package com.nnk.springboot.domain
-2. Create repository class and place in package com.nnk.springboot.repositories
+2. Create repository class and place in package com.poseidoncapitalsolutions.poseiden.repositories
 3. Create controller class and place in package com.nnk.springboot.controllers
 
 ## Security

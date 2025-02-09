@@ -3,6 +3,7 @@ package com.poseidoncapitalsolutions.poseiden.controller;
 import com.poseidoncapitalsolutions.poseiden.controllers.UserController;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.UserDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.User;
+import com.poseidoncapitalsolutions.poseiden.exceptions.UserIdNotFoundException;
 import com.poseidoncapitalsolutions.poseiden.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -90,7 +91,7 @@ public class UserControllerTests {
 	}
 
 	@Nested
-	@DisplayName("POST /user/validate Tests")
+	@DisplayName("/user/validate Tests")
 	class UserValidateTests {
 		private UserDTO dummyValidUserDTO;
 
@@ -127,6 +128,41 @@ public class UserControllerTests {
 					.andExpect(model().attributeHasFieldErrors("user", "username", "password", "fullname", "role"));
 
 			verifyNoInteractions(userService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/user/update/{id} Tests")
+	class UserUpdateTests {
+		@Test
+		@DisplayName("GET /user/update/{id} : Should return the 'user/update' view with the user to update")
+		public void shouldReturnTheUserUpdateView() throws Exception {
+			when(userService.getById(anyInt())).thenReturn(dummyValidUser);
+
+			mockMvc.perform(get("/user/update/1"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("user/update"))
+					.andExpect(model().attributeExists("user"))
+					.andExpect(model().attribute("user", hasProperty("username", is(dummyValidUser.getUsername()))))
+					.andExpect(model().attribute("user", hasProperty("fullname", is(dummyValidUser.getFullname()))))
+					.andExpect(model().attribute("user", hasProperty("password", is(dummyValidUser.getPassword()))))
+					.andExpect(model().attribute("user", hasProperty("role", is(dummyValidUser.getRole()))));
+
+			verify(userService, times(1)).getById(1);
+			verifyNoMoreInteractions(userService);
+		}
+
+		@Test
+		@DisplayName("GET /user/update/{id} : Should throw an exception when the user is not found")
+		public void shouldThrowExceptionWhenUserNotFound() throws Exception {
+			doThrow(new UserIdNotFoundException(1)).when(userService).getById(1);
+
+			mockMvc.perform(get("/user/update/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/user/list"));
+
+			verify(userService, times(1)).getById(1);
+			verifyNoMoreInteractions(userService);
 		}
 	}
 }

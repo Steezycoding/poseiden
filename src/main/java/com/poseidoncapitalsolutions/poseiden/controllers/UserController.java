@@ -2,6 +2,8 @@ package com.poseidoncapitalsolutions.poseiden.controllers;
 
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.UserDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.User;
+import com.poseidoncapitalsolutions.poseiden.exceptions.UserAlreadyExistsException;
+import com.poseidoncapitalsolutions.poseiden.exceptions.UserIdNotFoundException;
 import com.poseidoncapitalsolutions.poseiden.repositories.UserRepository;
 import com.poseidoncapitalsolutions.poseiden.services.UserService;
 import jakarta.validation.Valid;
@@ -55,23 +57,23 @@ public class UserController {
 
     @GetMapping("/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
-        user.setPassword("");
-        model.addAttribute("user", user);
+        User user = userService.getById(id);
+        UserDTO userDTO = new UserDTO().fromEntity(user);
+
+        model.addAttribute("user", userDTO);
         return "user/update";
     }
 
     @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable("id") Integer id, @Valid User user,
-                             BindingResult result, Model model) {
+    public String updateUser(@PathVariable("id") Integer id, @ModelAttribute("user") UserDTO userDTO, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "user/update";
         }
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        user.setPassword(encoder.encode(user.getPassword()));
-        user.setId(id);
-        userRepository.save(user);
+        userDTO.setPassword(encoder.encode(userDTO.getPassword()));
+        // userDTO.setId(id);
+        userService.update(id, userDTO);
         model.addAttribute("users", userRepository.findAll());
         return "redirect:/user/list";
     }
@@ -84,11 +86,18 @@ public class UserController {
         return "redirect:/user/list";
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public String handleException(IllegalArgumentException e, Model model) {
-		logger.error("Failed operation on user: {}", e.getMessage());
-
+    // Handle exceptions
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public String handleInvalidUserFormException(UserAlreadyExistsException e, Model model) {
+        logger.error("Failed operation on user: {}", e.getMessage());
         model.addAttribute("error", e.getMessage());
         return "user/add";
+    }
+
+    @ExceptionHandler(UserIdNotFoundException.class)
+    public String handleUserNotFoundException(UserIdNotFoundException e, Model model) {
+        logger.error("Failed operation on user: {}", e.getMessage());
+        model.addAttribute("error", e.getMessage());
+        return "redirect:/user/list";
     }
 }

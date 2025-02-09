@@ -1,17 +1,16 @@
 package com.poseidoncapitalsolutions.poseiden.controllers.dto;
 
+import com.poseidoncapitalsolutions.poseiden.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
 public class UserDTO {
 	@NotBlank(message = "Username is mandatory")
 	@Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9._-]*$", message = "Username must be alphanumeric and begin with letter.")
@@ -29,4 +28,21 @@ public class UserDTO {
 	@NotBlank(message = "Role is mandatory")
 	@Pattern(regexp = "^[A-Z]+$", message = "Role must be in uppercase")
 	private String role;
+
+	public UserDTO fromEntity(User user) {
+		this.username = user.getUsername();
+		this.password = user.getPassword();
+		this.fullname = user.getFullname();
+		this.role = user.getRole();
+		return this;
+	}
+
+	public User toEntity() {
+		User user = new User();
+		user.setUsername(username);
+		user.setPassword(password);
+		user.setFullname(fullname);
+		user.setRole(role);
+		return user;
+	}
 }

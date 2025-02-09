@@ -20,8 +20,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -162,6 +161,35 @@ public class UserControllerTests {
 					.andExpect(redirectedUrl("/user/list"));
 
 			verify(userService, times(1)).getById(1);
+			verifyNoMoreInteractions(userService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/user/delete/{id} Tests")
+	class UserDeleteTests {
+		@Test
+		@DisplayName("DELETE /user/delete/{id} : Should delete the user and return the 'user/list' view")
+		public void shouldDeleteUserAndReturnUserListView() throws Exception {
+			mockMvc.perform(delete("/user/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/user/list"));
+
+			verify(userService, times(1)).delete(1);
+			verify(userService, times(1)).getAll();
+			verifyNoMoreInteractions(userService);
+		}
+
+		@Test
+		@DisplayName("DELETE /user/delete/{id} : Should throw an exception when the user is not found")
+		public void shouldThrowExceptionWhenUserNotFound() throws Exception {
+			doThrow(new UserIdNotFoundException(1)).when(userService).delete(1);
+
+			mockMvc.perform(delete("/user/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/user/list"));
+
+			verify(userService, times(1)).delete(1);
 			verifyNoMoreInteractions(userService);
 		}
 	}

@@ -50,5 +50,9 @@ public class UserRepositoryTests {
 		// Find by username
 		Optional<User> userByUsername = repository.findByUsername(dummyUser.getUsername());
 		assertThat(userByUsername).isPresent();
+
+		// Delete
+		repository.deleteById(dummyUser.getId());
+		assertThat(repository.findById(dummyUser.getId())).isNotPresent();
 	}
 }

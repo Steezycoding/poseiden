@@ -68,6 +68,14 @@ public class UserService {
 		return userRepository.save(user);
 	}
 
+	public void delete(Integer id) {
+		if (userRepository.existsById(id)) {
+			userRepository.deleteById(id);
+		} else {
+			throw new UserIdNotFoundException(id);
+		}
+	}
+
 	private User getByUsername(String username) {
 		return userRepository.findByUsername(username)
 				.stream()

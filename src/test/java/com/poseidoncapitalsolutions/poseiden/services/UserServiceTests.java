@@ -221,4 +221,37 @@ public class UserServiceTests {
 			verifyNoMoreInteractions(userRepository);
 		}
 	}
+
+	@Nested
+	@DisplayName("delete() Tests")
+	class DeleteTests {
+		@Test
+		@DisplayName("Should delete a user if exists")
+		public void givenUserExists_whenDeleteUser_thenDeleteUser() {
+			when(userRepository.existsById(anyInt())).thenReturn(true);
+
+			userService.delete(1);
+
+			verify(userRepository, times(1)).existsById(eq(1));
+			verify(userRepository, times(1)).deleteById(eq(1));
+			verifyNoMoreInteractions(userRepository);
+		}
+
+		@Test
+		@DisplayName("Should NOT delete a user if NOT exists")
+		public void givenUserNotExists_whenDeleteUser_thenThrowException() {
+			when(userRepository.existsById(anyInt())).thenReturn(false);
+
+			RuntimeException exception = assertThrows(UserIdNotFoundException.class, () -> {
+				userService.delete(1);
+			});
+
+			String expectedExceptionMessage = String.format("User with Id '%s' doesn't exist.", 1);
+
+			assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
+
+			verify(userRepository, times(1)).existsById(eq(1));
+			verifyNoMoreInteractions(userRepository);
+		}
+	}
 }

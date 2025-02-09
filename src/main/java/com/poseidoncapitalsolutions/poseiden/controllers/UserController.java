@@ -4,12 +4,10 @@ import com.poseidoncapitalsolutions.poseiden.controllers.dto.UserDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.User;
 import com.poseidoncapitalsolutions.poseiden.exceptions.UserAlreadyExistsException;
 import com.poseidoncapitalsolutions.poseiden.exceptions.UserIdNotFoundException;
-import com.poseidoncapitalsolutions.poseiden.repositories.UserRepository;
 import com.poseidoncapitalsolutions.poseiden.services.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,9 +20,6 @@ public class UserController {
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
-
-    @Autowired
-    private UserRepository userRepository;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -74,15 +69,14 @@ public class UserController {
         userDTO.setPassword(encoder.encode(userDTO.getPassword()));
         // userDTO.setId(id);
         userService.update(id, userDTO);
-        model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("users", userService.getAll());
         return "redirect:/user/list";
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Integer id, Model model) {
-        User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
-        userRepository.delete(user);
-        model.addAttribute("users", userRepository.findAll());
+        userService.delete(id);
+        model.addAttribute("users", userService.getAll());
         return "redirect:/user/list";
     }
 

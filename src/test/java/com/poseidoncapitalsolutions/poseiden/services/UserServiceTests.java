@@ -119,7 +119,7 @@ public class UserServiceTests {
 		@Test
 		@DisplayName("Should save a user if NOT already exists")
 		public void givenUserNotExists_whenSaveUser_thenSaveUser() {
-			when(userRepository.findByUsername(anyString())).thenReturn(null);
+			when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 			when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
 			when(userRepository.save(any(User.class))).thenReturn(dummyUser);
 

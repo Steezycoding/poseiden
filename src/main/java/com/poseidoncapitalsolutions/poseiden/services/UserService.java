@@ -35,7 +35,7 @@ public class UserService {
 	}
 
 	public User save(UserDTO userDTO) {
-		if (userRepository.findByUsername(userDTO.getUsername()) != null) {
+		if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
 			throw new UserAlreadyExistsException(userDTO.getUsername());
 		}
 
@@ -76,7 +76,7 @@ public class UserService {
 		}
 	}
 
-	private User getByUsername(String username) {
+	public User getByUsername(String username) {
 		return userRepository.findByUsername(username)
 				.stream()
 				.findFirst()

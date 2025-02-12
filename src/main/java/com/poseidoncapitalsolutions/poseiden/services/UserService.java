@@ -40,14 +40,9 @@ public class UserService {
 		}
 
 		String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+		userDTO.setPassword(encodedPassword);
 
-		User user = new User();
-		user.setUsername(userDTO.getUsername());
-		user.setFullname(userDTO.getFullname());
-		user.setPassword(encodedPassword);
-		user.setRole(userDTO.getRole());
-
-		return userRepository.save(user);
+		return userRepository.save(userDTO.toEntity());
 	}
 
 	public User update(Integer id, UserDTO userDTO) {
@@ -58,11 +53,18 @@ public class UserService {
 			if (existingUser != null && !existingUser.getId().equals(id)) {
 				throw new UserAlreadyExistsException(userDTO.getUsername());
 			}
+			user.setUsername(userDTO.getUsername());
 		}
 
-		user.setUsername(userDTO.getUsername());
 		user.setFullname(userDTO.getFullname());
-		user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+		if (userDTO.getPassword() != null
+				&& !userDTO.getPassword().isEmpty()
+				&& !passwordEncoder.matches(userDTO.getPassword(), user.getPassword()))
+		{
+			user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+		}
+
 		user.setRole(userDTO.getRole());
 
 		return userRepository.save(user);

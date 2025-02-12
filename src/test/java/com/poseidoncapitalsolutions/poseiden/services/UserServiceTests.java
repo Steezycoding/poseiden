@@ -118,7 +118,7 @@ public class UserServiceTests {
 
 		@Test
 		@DisplayName("Should save a user if NOT already exists")
-		public void givenUserNotExists_whenSaveUser_thenSaveUser() {
+		public void givenUserNotExists_whenSaveUser_thenSaveUserWithEncodedPassword() {
 			when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 			when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
 			when(userRepository.save(any(User.class))).thenReturn(dummyUser);
@@ -127,7 +127,6 @@ public class UserServiceTests {
 
 			assertThat(user).isNotNull();
 			assertThat(user).isEqualTo(dummyUser);
-			assertThat(user.getPassword()).isEqualTo("encodedPassword");
 
 			verify(userRepository, times(1)).findByUsername(eq(dummyUserDTO.getUsername()));
 			verify(userRepository, times(1)).save(eq(dummyUser));

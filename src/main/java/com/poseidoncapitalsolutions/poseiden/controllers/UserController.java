@@ -8,7 +8,6 @@ import com.poseidoncapitalsolutions.poseiden.services.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -64,12 +63,8 @@ public class UserController {
         if (result.hasErrors()) {
             return "user/update";
         }
-
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        userDTO.setPassword(encoder.encode(userDTO.getPassword()));
-        // userDTO.setId(id);
         userService.update(id, userDTO);
-        model.addAttribute("users", userService.getAll());
+
         return "redirect:/user/list";
     }
 

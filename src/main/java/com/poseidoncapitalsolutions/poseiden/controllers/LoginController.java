@@ -34,7 +34,7 @@ public class LoginController {
                 if (role.equals("ROLE_ADMIN")) {
                     return "redirect:/user/list";
                 } else if (role.equals("ROLE_USER")) {
-                    return "redirect:/";
+                    return "redirect:/bidList/list";
                 }
             }
         }

@@ -58,7 +58,7 @@ public class LoginControllerTests {
 	}
 
 	@Test
-	@DisplayName("GET /app/login-redirect : Should redirect USER user to /")
+	@DisplayName("GET /app/login-redirect : Should redirect USER user to /bidList/list")
 	public void testRedirectAfterLogin_User() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken(
 				"user",
@@ -68,7 +68,7 @@ public class LoginControllerTests {
 
 		mockMvc.perform(get("/app/login-redirect").principal(authentication))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/"));
+				.andExpect(redirectedUrl("/bidList/list"));
 	}
 
 	@Test

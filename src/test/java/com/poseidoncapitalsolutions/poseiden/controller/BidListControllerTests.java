@@ -4,11 +4,13 @@ import com.poseidoncapitalsolutions.poseiden.controllers.BidListController;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.BidListDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.BidList;
 import com.poseidoncapitalsolutions.poseiden.services.BidListService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -141,6 +143,75 @@ public class BidListControllerTests {
 							.param("bidQuantity", "0"))
 					.andExpect(status().is2xxSuccessful())
 					.andExpect(view().name("bidList/add"));
+
+			verifyNoInteractions(bidListService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/bidList/update/{id} Tests")
+	class UpdateBidTests {
+		@BeforeEach
+		public void setUp() {
+			dummyBidList.setId(1);
+		}
+
+		@Test
+		@DisplayName("GET /bidList/update/{id} : Should return the 'bidList/update' view with the bid to update")
+		public void shouldReturnTheBidListUpdateView() throws Exception {
+			when(bidListService.getById(anyInt())).thenReturn(dummyBidList);
+
+			mockMvc.perform(get("/bidList/update/1"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("bidList/update"))
+					.andExpect(model().attributeExists("bid"))
+					.andExpect(model().attribute("bid", hasProperty("account", is(dummyBidList.getAccount()))))
+					.andExpect(model().attribute("bid", hasProperty("type", is(dummyBidList.getType()))))
+					.andExpect(model().attribute("bid", hasProperty("bidQuantity", is(dummyBidList.getBidQuantity()))));
+
+			verify(bidListService, times(1)).getById(1);
+			verifyNoMoreInteractions(bidListService);
+		}
+
+		@Test
+		@DisplayName("GET /bidList/update/{id} : Should throw an exception when the bid is not found")
+		public void shouldThrowExceptionWhenBidNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("BidList with id 1 not found")).when(bidListService).getById(1);
+
+			mockMvc.perform(get("/bidList/update/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/bidList/list"));
+
+			verify(bidListService, times(1)).getById(1);
+			verifyNoMoreInteractions(bidListService);
+		}
+
+		@Test
+		@DisplayName("POST /bidList/update/{id} : Should update a bid")
+		public void shouldUpdateTheBid() throws Exception {
+			BidListDTO dummyBidListDTO = new BidListDTO().fromEntity(dummyBidList);
+			when(bidListService.update(ArgumentMatchers.any(BidListDTO.class))).thenReturn(dummyBidList);
+
+			mockMvc.perform(post("/bidList/update/1")
+							.param("account", dummyBidListDTO.getAccount())
+							.param("type", dummyBidListDTO.getType())
+							.param("bidQuantity", String.valueOf(dummyBidListDTO.getBidQuantity())))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/bidList/list"));
+
+			verify(bidListService, times(1)).update(eq(dummyBidListDTO));
+			verifyNoMoreInteractions(bidListService);
+		}
+
+		@Test
+		@DisplayName("POST /bidList/update/{id} : Should NOT update a bid with invalid collected form values")
+		public void shouldNotUpdateInvalidBidListForm() throws Exception {
+			mockMvc.perform(post("/bidList/update/1")
+							.param("account", "")
+							.param("type", "")
+							.param("bidQuantity", "0"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("bidList/update"));
 
 			verifyNoInteractions(bidListService);
 		}

@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.BidListDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.BidList;
 import com.poseidoncapitalsolutions.poseiden.repositories.BidListRepository;
 import jakarta.transaction.Transactional;
@@ -18,5 +19,9 @@ public class BidListService {
 
 	public List<BidList> getAll() {
 		return bidListRepository.findAll();
+	}
+
+	public BidList save(BidListDTO bid) {
+		return bidListRepository.save(bid.toEntity());
 	}
 }

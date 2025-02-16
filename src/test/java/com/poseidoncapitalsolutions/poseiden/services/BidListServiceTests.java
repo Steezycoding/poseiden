@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.BidListDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.BidList;
 import com.poseidoncapitalsolutions.poseiden.repositories.BidListRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,34 @@ public class BidListServiceTests {
 			assertThat(bidLists).contains(dummyBidList, dummyBidList2);
 
 			verify(bidListRepository, times(1)).findAll();
+			verifyNoMoreInteractions(bidListRepository);
+		}
+	}
+
+	@Nested
+	@DisplayName("save() Tests")
+	class SaveTests {
+		private BidListDTO validBidListDTO;
+
+		@BeforeEach
+		void setUp() {
+			validBidListDTO = new BidListDTO();
+			validBidListDTO.setAccount("Account 1");
+			validBidListDTO.setType("Type 1");
+			validBidListDTO.setBidQuantity(1d);
+		}
+
+		@Test
+		@DisplayName("Should save a bid")
+		public void saveTest() {
+			when(bidListRepository.save(any(BidList.class))).thenReturn(dummyBidList);
+
+			BidList bidList = bidListService.save(validBidListDTO);
+
+			assertThat(bidList).isNotNull();
+			assertThat(bidList).isEqualTo(dummyBidList);
+
+			verify(bidListRepository, times(1)).save(any(BidList.class));
 			verifyNoMoreInteractions(bidListRepository);
 		}
 	}

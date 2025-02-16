@@ -1,6 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden.controller;
 
 import com.poseidoncapitalsolutions.poseiden.controllers.BidListController;
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.BidListDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.BidList;
 import com.poseidoncapitalsolutions.poseiden.services.BidListService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -85,6 +87,62 @@ public class BidListControllerTests {
 
 			verify(bidListService, times(1)).getAll();
 			verifyNoMoreInteractions(bidListService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/bidList/add Tests")
+	class AddBidTests {
+		@Test
+		@DisplayName("GET /bidList/add : Should return the 'bidList/add' view")
+		public void shouldReturnTheBidListAddView() throws Exception {
+			mockMvc.perform(get("/bidList/add"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("bidList/add"))
+					.andExpect(model().attributeExists("bid"));
+
+			verifyNoInteractions(bidListService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/bidList/validate Tests")
+	class ValidateBidTests {
+		private BidListDTO dummyValidBidListDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyValidBidListDTO = new BidListDTO();
+			dummyValidBidListDTO.setAccount("Account 1");
+			dummyValidBidListDTO.setType("Type 1");
+			dummyValidBidListDTO.setBidQuantity(1d);
+		}
+
+		@Test
+		@DisplayName("POST /bidList/validate : Should return the 'bidList/add' view")
+		public void shouldValidateValidBidListForm() throws Exception {
+			mockMvc.perform(post("/bidList/validate")
+							.param("account", dummyValidBidListDTO.getAccount())
+							.param("type", dummyValidBidListDTO.getType())
+							.param("bidQuantity", String.valueOf(dummyValidBidListDTO.getBidQuantity())))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/bidList/list"));
+
+			verify(bidListService, times(1)).save(eq(dummyValidBidListDTO));
+			verifyNoMoreInteractions(bidListService);
+		}
+
+		@Test
+		@DisplayName("POST /bidList/validate : Should NOT save the bid with invalid collected form values")
+		public void shouldNotValidateInvalidBidListForm() throws Exception {
+			mockMvc.perform(post("/bidList/validate")
+							.param("account", "")
+							.param("type", "")
+							.param("bidQuantity", "0"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("bidList/add"));
+
+			verifyNoInteractions(bidListService);
 		}
 	}
 }

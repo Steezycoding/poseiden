@@ -30,4 +30,12 @@ public class BidListDTO {
 		bidList.setBidQuantity(bidQuantity);
 		return bidList;
 	}
+
+	public BidListDTO fromEntity(BidList bidList) {
+		this.id = bidList.getId();
+		this.account = bidList.getAccount();
+		this.type = bidList.getType();
+		this.bidQuantity = bidList.getBidQuantity();
+		return this;
+	}
 }

@@ -8,7 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -27,8 +29,17 @@ public class BidTests {
 		assertNotNull(bid.getId());
 		assertEquals(bid.getBidQuantity(), 10d, 10d);
 
+		// Update
+		bid.setBidQuantity(20d);
+		bid = bidListRepository.save(bid);
+		assertEquals(bid.getBidQuantity(), 20d, 20d);
+
 		// Find
 		List<BidList> listResult = bidListRepository.findAll();
 		assertTrue(listResult.size() > 0);
+
+		// Find by id
+		Optional<BidList> bidById = bidListRepository.findById(bid.getId());
+		assertThat(bidById).isPresent();
 	}
 }

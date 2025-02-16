@@ -35,4 +35,12 @@ public class BidListService {
 	public BidList update(BidListDTO bidListDTO) {
 		return bidListRepository.save(bidListDTO.toEntity());
 	}
+
+	public void delete(Integer id) {
+		if (bidListRepository.existsById(id)) {
+			bidListRepository.deleteById(id);
+		} else {
+			throw new EntityNotFoundException("BidList with id " + id + " not found");
+		}
+	}
 }

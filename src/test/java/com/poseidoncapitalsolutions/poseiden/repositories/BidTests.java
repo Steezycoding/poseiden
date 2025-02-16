@@ -41,5 +41,10 @@ public class BidTests {
 		// Find by id
 		Optional<BidList> bidById = bidListRepository.findById(bid.getId());
 		assertThat(bidById).isPresent();
+
+		// Delete
+		bidListRepository.delete(bid);
+		Optional<BidList> bidEmpty = bidListRepository.findById(bid.getId());
+		assertThat(bidEmpty).isNotPresent();
 	}
 }

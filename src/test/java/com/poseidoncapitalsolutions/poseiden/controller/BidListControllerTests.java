@@ -216,4 +216,32 @@ public class BidListControllerTests {
 			verifyNoInteractions(bidListService);
 		}
 	}
+
+	@Nested
+	@DisplayName("/bidList/delete/{id} Tests")
+	class DeleteBidTests {
+		@Test
+		@DisplayName("GET /bidList/delete/{id} : Should delete a bid")
+		public void shouldDeleteTheBid() throws Exception {
+			mockMvc.perform(get("/bidList/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/bidList/list"));
+
+			verify(bidListService).delete(1);
+			verifyNoMoreInteractions(bidListService);
+		}
+
+		@Test
+		@DisplayName("GET /bidList/delete/{id} : Should throw an exception when the bid is not found")
+		public void shouldThrowExceptionWhenBidNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("BidList with id 1 not found")).when(bidListService).delete(1);
+
+			mockMvc.perform(get("/bidList/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/bidList/list"));
+
+			verify(bidListService).delete(1);
+			verifyNoMoreInteractions(bidListService);
+		}
+	}
 }

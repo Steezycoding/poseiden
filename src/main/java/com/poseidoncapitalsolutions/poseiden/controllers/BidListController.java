@@ -3,7 +3,6 @@ package com.poseidoncapitalsolutions.poseiden.controllers;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.BidListDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.BidList;
 import com.poseidoncapitalsolutions.poseiden.services.BidListService;
-import com.poseidoncapitalsolutions.poseiden.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -22,11 +21,9 @@ public class BidListController {
     private final Logger logger = LoggerFactory.getLogger(BidListController.class);
 
     private final BidListService bidListService;
-    private final UserService userService;
 
-    public BidListController(BidListService bidListService, UserService userService) {
+    public BidListController(BidListService bidListService) {
 		this.bidListService = bidListService;
-        this.userService = userService;
     }
 
 	@RequestMapping("/list")

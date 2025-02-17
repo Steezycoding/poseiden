@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.CurvePointDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.CurvePoint;
 import com.poseidoncapitalsolutions.poseiden.repositories.CurvePointRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,34 @@ public class CurvePointServiceTests {
 			assertThat(curvePoints).contains(dummyCurvePoint, dummyCurvePoint2);
 
 			verify(curvePointRepository, times(1)).findAll();
+			verifyNoMoreInteractions(curvePointRepository);
+		}
+	}
+
+	@Nested
+	@DisplayName("save() Tests")
+	class SaveTests {
+		private CurvePointDTO dummyCurvePointDTO;
+
+		@BeforeEach
+		void setUp() {
+			dummyCurvePointDTO = new CurvePointDTO();
+			dummyCurvePointDTO.setCurveId(10);
+			dummyCurvePointDTO.setTerm(10d);
+			dummyCurvePointDTO.setValue(30d);
+		}
+
+		@Test
+		@DisplayName("Should save a curve point")
+		public void saveTest() {
+			when(curvePointRepository.save(any(CurvePoint.class))).thenReturn(dummyCurvePoint);
+
+			CurvePoint curvePoint = curvePointService.save(dummyCurvePointDTO);
+
+			assertThat(curvePoint).isNotNull();
+			assertThat(curvePoint).isEqualTo(dummyCurvePoint);
+
+			verify(curvePointRepository, times(1)).save(eq(dummyCurvePoint));
 			verifyNoMoreInteractions(curvePointRepository);
 		}
 	}

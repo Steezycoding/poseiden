@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.CurvePointDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.CurvePoint;
 import com.poseidoncapitalsolutions.poseiden.services.CurvePointService;
 import jakarta.validation.Valid;
@@ -8,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -37,14 +35,19 @@ public class CurveController {
     }
 
     @GetMapping("/add")
-    public String addBidForm(CurvePoint bid) {
+    public String addBidForm(Model model) {
+        model.addAttribute("curvePoint", new CurvePointDTO());
         return "curvePoint/add";
     }
 
     @PostMapping("/validate")
-    public String validate(@Valid CurvePoint curvePoint, BindingResult result, Model model) {
-        // TODO: check data valid and save to db, after saving return Curve list
-        return "curvePoint/add";
+    public String validate(@Valid @ModelAttribute("curvePoint") CurvePointDTO curvePoint, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("CurvePoint Add form has errors {}", result.getAllErrors());
+            return "curvePoint/add";
+        }
+        curvePointService.save(curvePoint);
+        return "redirect:/curvePoint/list";
     }
 
     @GetMapping("/update/{id}")

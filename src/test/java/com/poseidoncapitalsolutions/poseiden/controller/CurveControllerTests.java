@@ -1,6 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden.controller;
 
 import com.poseidoncapitalsolutions.poseiden.controllers.CurveController;
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.CurvePointDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.CurvePoint;
 import com.poseidoncapitalsolutions.poseiden.services.CurvePointService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -85,6 +87,60 @@ public class CurveControllerTests {
 
 			verify(curvePointService, times(1)).getAll();
 			verifyNoMoreInteractions(curvePointService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/curvePoint/add Tests")
+	class AddCurveTests {
+		@Test
+		@DisplayName("GET /curvePoint/add : Should return the 'curvePoint/add' view with an empty CurvePointDTO")
+		public void addCurveTest() throws Exception {
+			mockMvc.perform(get("/curvePoint/add"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("curvePoint/add"))
+					.andExpect(model().attributeExists("curvePoint"));
+		}
+	}
+
+	@Nested
+	@DisplayName("/curvePoint/validate Tests")
+	class ValidateCurveTests {
+		private CurvePointDTO dummyCurvePointDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyCurvePointDTO = new CurvePointDTO();
+			dummyCurvePointDTO.setCurveId(10);
+			dummyCurvePointDTO.setTerm(10d);
+			dummyCurvePointDTO.setValue(30d);
+		}
+
+		@Test
+		@DisplayName("POST /curvePoint/validate : Should save a curve point and redirect to /curvePoint/list")
+		public void shouldValidateValidCurvePointAddForm() throws Exception {
+			mockMvc.perform(post("/curvePoint/validate")
+							.param("curveId", dummyCurvePointDTO.getCurveId().toString())
+							.param("term", dummyCurvePointDTO.getTerm().toString())
+							.param("value", dummyCurvePointDTO.getValue().toString()))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/curvePoint/list"));
+
+			verify(curvePointService, times(1)).save(eq(dummyCurvePointDTO));
+			verifyNoMoreInteractions(curvePointService);
+		}
+
+		@Test
+		@DisplayName("POST /curvePoint/validate : Should NOT save the curvePoint with invalid collected form values")
+		public void shouldNotValidateInvalidCurvePointAddForm() throws Exception {
+			mockMvc.perform(post("/curvePoint/validate")
+							.param("curveId", "")
+							.param("term", "")
+							.param("value", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("curvePoint/add"));
+
+			verifyNoInteractions(curvePointService);
 		}
 	}
 }

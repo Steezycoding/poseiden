@@ -4,6 +4,7 @@ import com.poseidoncapitalsolutions.poseiden.controllers.CurveController;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.CurvePointDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.CurvePoint;
 import com.poseidoncapitalsolutions.poseiden.services.CurvePointService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -139,6 +140,73 @@ public class CurveControllerTests {
 							.param("value", ""))
 					.andExpect(status().is2xxSuccessful())
 					.andExpect(view().name("curvePoint/add"));
+
+			verifyNoInteractions(curvePointService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/curvePoint/update/{id} Tests")
+	class UpdateCurveTests {
+		@BeforeEach
+		public void setUp() {
+			dummyCurvePoint.setId(1);
+		}
+
+		@Test
+		@DisplayName("GET /curvePoint/update/{id} : Should return the 'curvePoint/update' view with the curve point to update")
+		public void shouldReturnTheCurvePointUpdateView() throws Exception {
+			when(curvePointService.getById(1)).thenReturn(dummyCurvePoint);
+
+			mockMvc.perform(get("/curvePoint/update/1"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("curvePoint/update"))
+					.andExpect(model().attributeExists("curvePoint"))
+					.andExpect(model().attribute("curvePoint", hasProperty("curveId", is(dummyCurvePoint.getCurveId()))))
+					.andExpect(model().attribute("curvePoint", hasProperty("term", is(dummyCurvePoint.getTerm()))))
+					.andExpect(model().attribute("curvePoint", hasProperty("value", is(dummyCurvePoint.getValue()))));
+
+			verify(curvePointService, times(1)).getById(eq(1));
+			verifyNoMoreInteractions(curvePointService);
+		}
+
+		@Test
+		@DisplayName("GET /curvePoint/update/{id} : Should throw an exception when the curve point is not found")
+		public void shouldThrowExceptionWhenCurvePointNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("CurvePoint with id 1 not found")).when(curvePointService).getById(1);
+
+			mockMvc.perform(get("/curvePoint/update/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/curvePoint/list"));
+
+			verify(curvePointService, times(1)).getById(1);
+			verifyNoMoreInteractions(curvePointService);
+		}
+
+		@Test
+		@DisplayName("POST /curvePoint/update/{id} : Should update the curve point and redirect to /curvePoint/list")
+		public void shouldUpdateTheCurvePoint() throws Exception {
+			CurvePointDTO dummyCurvePointDTO = new CurvePointDTO().fromEntity(dummyCurvePoint);
+			mockMvc.perform(post("/curvePoint/update/1")
+							.param("curveId", dummyCurvePointDTO.getCurveId().toString())
+							.param("term", dummyCurvePointDTO.getTerm().toString())
+							.param("value", dummyCurvePointDTO.getValue().toString()))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/curvePoint/list"));
+
+			verify(curvePointService, times(1)).update(eq(dummyCurvePointDTO));
+			verifyNoMoreInteractions(curvePointService);
+		}
+
+		@Test
+		@DisplayName("POST /curvePoint/update/{id} : Should NOT update the curve point with invalid collected form values")
+		public void shouldNotUpdateInvalidCurvePointForm() throws Exception {
+			mockMvc.perform(post("/curvePoint/update/1")
+							.param("curveId", "")
+							.param("term", "")
+							.param("value", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("curvePoint/update"));
 
 			verifyNoInteractions(curvePointService);
 		}

@@ -29,4 +29,12 @@ public class CurvePointDTO {
 		curvePoint.setValue(value);
 		return curvePoint;
 	}
+
+	public CurvePointDTO fromEntity(CurvePoint curvePoint) {
+		this.id = curvePoint.getId();
+		this.curveId = curvePoint.getCurveId();
+		this.term = curvePoint.getTerm();
+		this.value = curvePoint.getValue();
+		return this;
+	}
 }

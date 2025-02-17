@@ -3,6 +3,7 @@ package com.poseidoncapitalsolutions.poseiden.services;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.CurvePointDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.CurvePoint;
 import com.poseidoncapitalsolutions.poseiden.repositories.CurvePointRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,16 @@ public class CurvePointService {
 		return curvePointRepository.findAll();
 	}
 
+	public CurvePoint getById(Integer id) {
+		return curvePointRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("CurvePoint with id " + id + " not found"));
+	}
+
 	public CurvePoint save(CurvePointDTO curvePointDTO) {
-		CurvePoint curvePoint = curvePointRepository.save(curvePointDTO.toEntity());
-		return curvePoint;
+		return curvePointRepository.save(curvePointDTO.toEntity());
+	}
+
+	public CurvePoint update(CurvePointDTO curvePointDTO) {
+		return curvePointRepository.save(curvePointDTO.toEntity());
 	}
 }

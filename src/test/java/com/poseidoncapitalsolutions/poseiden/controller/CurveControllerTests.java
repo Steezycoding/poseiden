@@ -211,4 +211,45 @@ public class CurveControllerTests {
 			verifyNoInteractions(curvePointService);
 		}
 	}
+
+	@Nested
+	@DisplayName("/curvePoint/delete/{id} Tests")
+	class DeleteCurveTests {
+		@Test
+		@DisplayName("GET /curvePoint/delete/{id} : Should delete the curve point and redirect to /curvePoint/list")
+		public void shouldDeleteTheCurvePoint() throws Exception {
+			mockMvc.perform(get("/curvePoint/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/curvePoint/list"));
+
+			verify(curvePointService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(curvePointService);
+		}
+
+		@Test
+		@DisplayName("GET /curvePoint/delete/{id} : Should throw an exception when the curve point is not found")
+		public void shouldThrowExceptionWhenCurvePointNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("CurvePoint with id 1 not found")).when(curvePointService).delete(1);
+
+			mockMvc.perform(get("/curvePoint/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/curvePoint/list"));
+
+			verify(curvePointService, times(1)).delete(1);
+			verifyNoMoreInteractions(curvePointService);
+		}
+
+		@Test
+		@DisplayName("GET /curvePoint/delete/{id} : Should throw an exception and redirect to list when the curve point is not found")
+		public void givenCurvePointNotExists_whenDelete_thenThrowExceptionAndRedirect() throws Exception {
+			doThrow(new EntityNotFoundException("CurvePoint with id 1 not found")).when(curvePointService).delete(1);
+
+			mockMvc.perform(get("/curvePoint/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/curvePoint/list"));
+
+			verify(curvePointService, times(1)).delete(1);
+			verifyNoMoreInteractions(curvePointService);
+		}
+	}
 }

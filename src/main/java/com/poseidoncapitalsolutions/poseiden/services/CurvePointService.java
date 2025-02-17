@@ -34,4 +34,12 @@ public class CurvePointService {
 	public CurvePoint update(CurvePointDTO curvePointDTO) {
 		return curvePointRepository.save(curvePointDTO.toEntity());
 	}
+
+	public void delete(Integer id) {
+		if (curvePointRepository.existsById(id)) {
+			curvePointRepository.deleteById(id);
+		} else {
+			throw new EntityNotFoundException("CurvePoint with id " + id + " not found");
+		}
+	}
 }

@@ -145,4 +145,39 @@ public class CurvePointServiceTests {
 			verifyNoMoreInteractions(curvePointRepository);
 		}
 	}
+
+	@Nested
+	@DisplayName("delete() Tests")
+	class DeleteTests {
+		@Test
+		@DisplayName("Should delete a curve point")
+		public void deleteTest() {
+			Integer curvePointId = 1;
+			when(curvePointRepository.existsById(anyInt())).thenReturn(true);
+
+			curvePointService.delete(curvePointId);
+
+			verify(curvePointRepository, times(1)).existsById(eq(curvePointId));
+			verify(curvePointRepository, times(1)).deleteById(eq(curvePointId));
+			verifyNoMoreInteractions(curvePointRepository);
+		}
+
+		@Test
+		@DisplayName("Should throw EntityNotFoundException when curve point with given ID does not exist")
+		public void deleteTest_EntityNotFoundException() {
+			Integer curvePointId = 1;
+			when(curvePointRepository.existsById(anyInt())).thenReturn(false);
+
+			RuntimeException exception = assertThrows(EntityNotFoundException.class, () -> {
+				curvePointService.delete(curvePointId);
+			});
+
+			String expectedExceptionMessage = String.format("CurvePoint with id %s not found", curvePointId);
+
+			assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
+
+			verify(curvePointRepository, times(1)).existsById(eq(curvePointId));
+			verifyNoMoreInteractions(curvePointRepository);
+		}
+	}
 }

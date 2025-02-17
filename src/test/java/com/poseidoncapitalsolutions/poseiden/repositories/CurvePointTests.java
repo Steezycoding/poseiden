@@ -10,6 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,5 +42,10 @@ public class CurvePointTests {
 		// Find by Id
 		Optional<CurvePoint> optional = curvePointRepository.findById(curvePoint.getId());
 		assertTrue(optional.isPresent());
+
+		// Delete
+		curvePointRepository.delete(curvePoint);
+		Optional<CurvePoint> bidEmpty = curvePointRepository.findById(curvePoint.getId());
+		assertThat(bidEmpty).isNotPresent();
 	}
 }

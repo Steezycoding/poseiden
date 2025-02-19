@@ -3,6 +3,7 @@ package com.poseidoncapitalsolutions.poseiden.controllers;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.RuleNameDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
 import com.poseidoncapitalsolutions.poseiden.services.RuleNameService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,20 +52,33 @@ public class RuleNameController {
 
     @GetMapping("/ruleName/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        // TODO: get RuleName by Id and to model then show to the form
+        RuleName ruleName = ruleNameService.getById(id);
+        RuleNameDTO ruleNameDTO = new RuleNameDTO().fromEntity(ruleName);
+
+        model.addAttribute("ruleName", ruleNameDTO);
         return "ruleName/update";
     }
 
     @PostMapping("/ruleName/update/{id}")
-    public String updateRuleName(@PathVariable("id") Integer id, @Valid RuleName ruleName,
-                             BindingResult result, Model model) {
-        // TODO: check required fields, if valid call service to update RuleName and return RuleName list
+    public String updateRuleName(@PathVariable("id") Integer id, @Valid @ModelAttribute("ruleName") RuleNameDTO ruleNameDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("RuleName Update form has errors {}", result.getAllErrors());
+            return "ruleName/update";
+        }
+        ruleNameService.update(ruleNameDTO);
         return "redirect:/ruleName/list";
     }
 
     @GetMapping("/ruleName/delete/{id}")
     public String deleteRuleName(@PathVariable("id") Integer id, Model model) {
         // TODO: Find RuleName by Id and delete the RuleName, return to Rule list
+        return "redirect:/ruleName/list";
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public String handleEntityNotFoundException(EntityNotFoundException e, Model model) {
+        logger.error("Failed operation on trade: {}", e.getMessage());
+        model.addAttribute("error", e.getMessage());
         return "redirect:/ruleName/list";
     }
 }

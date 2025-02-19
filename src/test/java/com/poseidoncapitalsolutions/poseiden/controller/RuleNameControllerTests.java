@@ -4,6 +4,7 @@ import com.poseidoncapitalsolutions.poseiden.controllers.RuleNameController;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.RuleNameDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
 import com.poseidoncapitalsolutions.poseiden.services.RuleNameService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -171,5 +172,83 @@ public class RuleNameControllerTests {
 		}
 	}
 
+	@Nested
+	@DisplayName("/ruleName/update/{id} Tests")
+	class UpdateRuleNameTests {
+		@Test
+		@DisplayName("GET /ruleName/update/{id} : Should return the 'rulename/update' view with the RuleNameDTO to update")
+		public void showUpdateForm() throws Exception {
+			when(ruleNameService.getById(1)).thenReturn(dummyRuleName);
 
+			mockMvc.perform(get("/ruleName/update/1"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("ruleName/update"))
+					.andExpect(model().attributeExists("ruleName"))
+					.andExpect(model().attribute("ruleName", hasProperty("id", is(dummyRuleName.getId()))))
+					.andExpect(model().attribute("ruleName", hasProperty("name", is(dummyRuleName.getName()))))
+					.andExpect(model().attribute("ruleName", hasProperty("description", is(dummyRuleName.getDescription()))))
+					.andExpect(model().attribute("ruleName", hasProperty("json", is(dummyRuleName.getJson()))))
+					.andExpect(model().attribute("ruleName", hasProperty("template", is(dummyRuleName.getTemplate()))))
+					.andExpect(model().attribute("ruleName", hasProperty("sqlStr", is(dummyRuleName.getSqlStr()))))
+					.andExpect(model().attribute("ruleName", hasProperty("sqlPart", is(dummyRuleName.getSqlPart()))));
+
+			verify(ruleNameService, times(1)).getById(eq(1));
+			verifyNoMoreInteractions(ruleNameService);
+		}
+
+		@Test
+		@DisplayName("GET /ruleName/update/{id} : Should handle an exception when the ruleName is not found")
+		public void shouldThrowExceptionWhenRuleNameNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("RuleName with id 1 not found")).when(ruleNameService).getById(1);
+
+			mockMvc.perform(get("/ruleName/update/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/ruleName/list"));
+
+			verify(ruleNameService, times(1)).getById(eq(1));
+			verifyNoMoreInteractions(ruleNameService);
+		}
+
+		@Test
+		@DisplayName("POST /ruleName/update/{id} : Should update a rule and redirect to /ruleName/list")
+		public void updateRuleName() throws Exception {
+			RuleNameDTO dummyRuleNameDTO = new RuleNameDTO().fromEntity(dummyRuleName);
+			dummyRuleNameDTO.setTemplate("Template 3");
+
+			mockMvc.perform(post("/ruleName/update/1")
+					.param("name", dummyRuleNameDTO.getName())
+					.param("description", dummyRuleNameDTO.getDescription())
+					.param("json", dummyRuleNameDTO.getJson())
+					.param("template", dummyRuleNameDTO.getTemplate())
+					.param("sqlStr", dummyRuleNameDTO.getSqlStr())
+					.param("sqlPart", dummyRuleNameDTO.getSqlPart()))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/ruleName/list"));
+
+			verify(ruleNameService, times(1)).update(eq(dummyRuleNameDTO));
+			verifyNoMoreInteractions(ruleNameService);
+		}
+
+		@Test
+		@DisplayName("POST /ruleName/update/{id} : Should return the 'rulename/update' view with errors when RuleNameDTO is invalid")
+		public void updateRuleName_WithErrors() throws Exception {
+			mockMvc.perform(post("/ruleName/update/1")
+					.param("name", "")
+					.param("description", "")
+					.param("json", "")
+					.param("template", "")
+					.param("sqlStr", "")
+					.param("sqlPart", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("ruleName/update"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "name"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "description"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "json"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "template"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "sqlStr"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "sqlPart"));
+
+			verifyNoInteractions(ruleNameService);
+		}
+	}
 }

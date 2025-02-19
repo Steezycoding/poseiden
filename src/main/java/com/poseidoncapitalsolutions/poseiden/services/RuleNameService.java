@@ -3,6 +3,7 @@ package com.poseidoncapitalsolutions.poseiden.services;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.RuleNameDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
 import com.poseidoncapitalsolutions.poseiden.repositories.RuleNameRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,16 @@ public class RuleNameService {
 		return ruleNameRepository.findAll();
 	}
 
+	public RuleName getById(Integer id) {
+		return ruleNameRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("RuleName with id " + id + " not found"));
+	}
+
 	public RuleName save(RuleNameDTO ruleNameDTO) {
+		return ruleNameRepository.save(ruleNameDTO.toEntity());
+	}
+
+	public RuleName update(RuleNameDTO ruleNameDTO) {
 		return ruleNameRepository.save(ruleNameDTO.toEntity());
 	}
 }

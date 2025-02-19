@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RatingDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Rating;
 import com.poseidoncapitalsolutions.poseiden.repositories.RatingRepository;
 import jakarta.transaction.Transactional;
@@ -18,5 +19,9 @@ public class RatingService {
 
 	public List<Rating> getAll() {
 		return ratingRepository.findAll();
+	}
+
+	public Rating save(RatingDTO ratingDTO) {
+		return ratingRepository.save(ratingDTO.toEntity());
 	}
 }

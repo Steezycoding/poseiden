@@ -1,6 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden.controller;
 
 import com.poseidoncapitalsolutions.poseiden.controllers.RatingController;
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RatingDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Rating;
 import com.poseidoncapitalsolutions.poseiden.services.RatingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -85,6 +87,63 @@ public class RatingControllerTests {
 
 			verify(ratingService, times(1)).getAll();
 			verifyNoMoreInteractions(ratingService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/rating/add Tests")
+	class AddRatingTests {
+		@Test
+		@DisplayName("GET /rating/add : Should return the 'rating/add' view with an empty RatingDTO")
+		public void addRatingTest() throws Exception {
+			mockMvc.perform(get("/rating/add"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("rating/add"))
+					.andExpect(model().attributeExists("rating"));
+		}
+	}
+
+	@Nested
+	@DisplayName("/rating/validate Tests")
+	class ValidateRatingTests {
+		private RatingDTO dummyRatingDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyRatingDTO = new RatingDTO();
+			dummyRatingDTO.setMoodysRating("Moodys A");
+			dummyRatingDTO.setSandPRating("S&P A");
+			dummyRatingDTO.setFitchRating("Fitch A");
+			dummyRatingDTO.setOrderNumber(10);
+		}
+
+		@Test
+		@DisplayName("POST /rating/validate : Should save a rating and redirect to /rating/list")
+		public void shouldValidateValidRatingAddForm() throws Exception {
+			mockMvc.perform(post("/rating/validate")
+							.param("moodysRating", dummyRatingDTO.getMoodysRating())
+							.param("sandPRating", dummyRatingDTO.getSandPRating())
+							.param("fitchRating", dummyRatingDTO.getFitchRating())
+							.param("orderNumber", dummyRatingDTO.getOrderNumber().toString()))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/rating/list"));
+
+			verify(ratingService, times(1)).save(eq(dummyRatingDTO));
+			verifyNoMoreInteractions(ratingService);
+		}
+
+		@Test
+		@DisplayName("POST /rating/validate : Should NOT save the rating with invalid collected form values")
+		public void shouldNotValidateInvalidRatingAddForm() throws Exception {
+			mockMvc.perform(post("/rating/validate")
+							.param("moodysRating", "")
+							.param("sandPRating", "")
+							.param("fitchRating", "")
+							.param("orderNumber", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("rating/add"));
+
+			verifyNoInteractions(ratingService);
 		}
 	}
 }

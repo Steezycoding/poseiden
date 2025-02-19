@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RatingDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Rating;
 import com.poseidoncapitalsolutions.poseiden.services.RatingService;
 import jakarta.validation.Valid;
@@ -8,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -37,14 +35,19 @@ public class RatingController {
     }
 
     @GetMapping("/add")
-    public String addRatingForm(Rating rating) {
+    public String addRatingForm(Model model) {
+        model.addAttribute("rating", new RatingDTO());
         return "rating/add";
     }
 
     @PostMapping("/validate")
-    public String validate(@Valid Rating rating, BindingResult result, Model model) {
-        // TODO: check data valid and save to db, after saving return Rating list
-        return "rating/add";
+    public String validate(@Valid @ModelAttribute("rating") RatingDTO rating, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("Rating Add form has errors {}", result.getAllErrors());
+            return "rating/add";
+        }
+        ratingService.save(rating);
+        return "redirect:/rating/list";
     }
 
     @GetMapping("/update/{id}")

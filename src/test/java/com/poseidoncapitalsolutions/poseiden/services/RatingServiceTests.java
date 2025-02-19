@@ -152,4 +152,39 @@ public class RatingServiceTests {
 			verifyNoMoreInteractions(ratingRepository);
 		}
 	}
+
+	@Nested
+	@DisplayName("delete() Tests")
+	class DeleteRatingTests {
+		private final Integer ratingId = 1;
+
+		@Test
+		@DisplayName("Should delete a rating")
+		public void shouldDeleteRating() {
+			when(ratingRepository.existsById(anyInt())).thenReturn(true);
+
+			ratingService.delete(ratingId);
+
+			verify(ratingRepository, times(1)).existsById(eq(ratingId));
+			verify(ratingRepository, times(1)).deleteById(eq(ratingId));
+			verifyNoMoreInteractions(ratingRepository);
+		}
+
+		@Test
+		@DisplayName("Should throw EntityNotFoundException when rating with given ID does not exist")
+		public void shouldRaiseExceptionIfRatingNotFound() {
+			when(ratingRepository.existsById(anyInt())).thenReturn(false);
+
+			RuntimeException exception = assertThrows(EntityNotFoundException.class, () -> {
+				ratingService.delete(ratingId);
+			});
+
+			String expectedExceptionMessage = String.format("Rating with id %s not found", ratingId);
+
+			assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
+
+			verify(ratingRepository, times(1)).existsById(eq(ratingId));
+			verifyNoMoreInteractions(ratingRepository);
+		}
+	}
 }

@@ -1,6 +1,8 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
+import com.poseidoncapitalsolutions.poseiden.services.TradeService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -9,16 +11,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import jakarta.validation.Valid;
+import java.security.Principal;
 
 @Controller
 public class TradeController {
-    // TODO: Inject Trade service
+    private final TradeService tradeService;
+
+    public TradeController(TradeService tradeService) {
+        this.tradeService = tradeService;
+    }
 
     @RequestMapping("/trade/list")
-    public String home(Model model)
+    public String home(Model model, Principal principal)
     {
-        // TODO: find all Trade, add to model
+        if (principal != null) {
+            model.addAttribute("user", principal.getName());
+        }
+        model.addAttribute("trades", tradeService.getAll());
         return "trade/list";
     }
 

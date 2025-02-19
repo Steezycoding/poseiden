@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -87,6 +88,54 @@ public class TradeServiceTests {
 			assertThat(result).isEqualTo(dummyTrade);
 
 			verify(tradeRepository, times(1)).save(dummyTrade);
+			verifyNoMoreInteractions(tradeRepository);
+		}
+	}
+
+	@Nested
+	@DisplayName("getById() Tests")
+	class GetByIdTests {
+		@Test
+		@DisplayName("Should return a trade by id")
+		public void shouldReturnTradeById() {
+			when(tradeRepository.findById(anyInt())).thenReturn(Optional.of(dummyTrade));
+
+			Trade result = tradeService.getById(1);
+
+			assertThat(result).isNotNull();
+			assertThat(result).isEqualTo(dummyTrade);
+
+			verify(tradeRepository, times(1)).findById(eq(1));
+			verifyNoMoreInteractions(tradeRepository);
+		}
+	}
+
+	@Nested
+	@DisplayName("update() Tests")
+	class UpdateTests {
+		private TradeDTO updatedTradeDTO;
+
+		@BeforeEach
+		public void setUp() {
+			updatedTradeDTO = new TradeDTO();
+			updatedTradeDTO.setId(1);
+			updatedTradeDTO.setAccount("Account 1");
+			updatedTradeDTO.setType("Trade Type 2");
+			updatedTradeDTO.setBuyQuantity(10.0);
+		}
+
+		@Test
+		@DisplayName("Should update a trade")
+		public void shouldUpdateTrade() {
+			Trade newTradeEntity = updatedTradeDTO.toEntity();
+			when(tradeRepository.save(any(Trade.class))).thenReturn(newTradeEntity);
+
+			Trade result = tradeService.update(updatedTradeDTO);
+
+			assertThat(result).isNotNull();
+			assertThat(result).isEqualTo(newTradeEntity);
+
+			verify(tradeRepository, times(1)).save(eq(newTradeEntity));
 			verifyNoMoreInteractions(tradeRepository);
 		}
 	}

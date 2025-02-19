@@ -1,6 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden.controllers.dto;
 
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class TradeDTO {
 	private String type;
 
 	@NotNull(message = "Buy Quantity is mandatory")
+	@Min(value = 1, message = "Buy Quantity must be greater than 0")
 	private Double buyQuantity;
 
 	public Trade toEntity() {
@@ -29,5 +31,13 @@ public class TradeDTO {
 		trade.setType(type);
 		trade.setBuyQuantity(buyQuantity);
 		return trade;
+	}
+
+	public TradeDTO fromEntity(Trade trade) {
+		this.id = trade.getId();
+		this.account = trade.getAccount();
+		this.type = trade.getType();
+		this.buyQuantity = trade.getBuyQuantity();
+		return this;
 	}
 }

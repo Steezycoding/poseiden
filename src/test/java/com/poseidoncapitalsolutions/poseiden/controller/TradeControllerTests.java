@@ -4,6 +4,7 @@ import com.poseidoncapitalsolutions.poseiden.controllers.TradeController;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.TradeDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
 import com.poseidoncapitalsolutions.poseiden.services.TradeService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -154,6 +155,76 @@ public class TradeControllerTests {
 							.param("buyQuantity", ""))
 					.andExpect(status().is2xxSuccessful())
 					.andExpect(view().name("trade/add"))
+					.andExpect(model().attributeHasFieldErrors("trade", "account"))
+					.andExpect(model().attributeHasFieldErrors("trade", "type"))
+					.andExpect(model().attributeHasFieldErrors("trade", "buyQuantity"));
+
+			verifyNoInteractions(tradeService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/trade/update/{id} Tests")
+	class UpdateTradeTests {
+		@Test
+		@DisplayName("GET /trade/update/{id} : Should return the 'trade/update' view with the trade to update")
+		public void showUpdateFormTest_WithUser() throws Exception {
+			when(tradeService.getById(dummyTrade.getId())).thenReturn(dummyTrade);
+
+			mockMvc.perform(get("/trade/update/1"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("trade/update"))
+					.andExpect(model().attributeExists("trade"))
+					.andExpect(model().attribute("trade", hasProperty("id", is(dummyTrade.getId()))))
+					.andExpect(model().attribute("trade", hasProperty("account", is(dummyTrade.getAccount()))))
+					.andExpect(model().attribute("trade", hasProperty("type", is(dummyTrade.getType()))))
+					.andExpect(model().attribute("trade", hasProperty("buyQuantity", is(dummyTrade.getBuyQuantity()))));
+
+			verify(tradeService, times(1)).getById(eq(1));
+			verifyNoMoreInteractions(tradeService);
+		}
+
+		@Test
+		@DisplayName("GET /trade/update/{id} : Should handle an exception when the trade is not found")
+		public void shouldHandleEntityNotFoundException_WhenTradeIsNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("Trade with id 1 not found")).when(tradeService).getById(1);
+
+			mockMvc.perform(get("/trade/update/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/trade/list"));
+
+			verify(tradeService, times(1)).getById(eq(1));
+			verifyNoMoreInteractions(tradeService);
+		}
+
+		@Test
+		@DisplayName("POST /trade/update/{id} : Should update a trade and redirect to /trade/list")
+		public void updateTradeTest_WithUser() throws Exception {
+			TradeDTO dummyTradeDTO = new TradeDTO().fromEntity(dummyTrade);
+			dummyTradeDTO.setBuyQuantity(2.0);
+
+			mockMvc.perform(post("/trade/update/1")
+							.param("id", String.valueOf(dummyTradeDTO.getId()))
+							.param("account", dummyTradeDTO.getAccount())
+							.param("type", dummyTradeDTO.getType())
+							.param("buyQuantity", String.valueOf(dummyTradeDTO.getBuyQuantity())))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/trade/list"));
+
+			verify(tradeService, times(1)).update(eq(dummyTradeDTO));
+			verifyNoMoreInteractions(tradeService);
+		}
+
+		@Test
+		@DisplayName("POST /trade/update/{id} : Should return the 'trade/update' view with errors when the form is invalid")
+		public void shouldReturnTradeUpdateViewWithErrors_WhenTradeUpdateFormIsInvalid() throws Exception {
+			mockMvc.perform(post("/trade/update/1")
+							.param("id", String.valueOf(dummyTrade.getId()))
+							.param("account", "")
+							.param("type", "")
+							.param("buyQuantity", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("trade/update"))
 					.andExpect(model().attributeHasFieldErrors("trade", "account"))
 					.andExpect(model().attributeHasFieldErrors("trade", "type"))
 					.andExpect(model().attributeHasFieldErrors("trade", "buyQuantity"));

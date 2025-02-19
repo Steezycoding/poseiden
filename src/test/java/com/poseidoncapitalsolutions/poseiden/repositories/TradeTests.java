@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,8 +33,17 @@ public class TradeTests {
 		assertNotNull(trade.getId());
 		assertTrue(trade.getAccount().equals("Trade Account"));
 
+		// Update
+		trade.setAccount("Trade Account Updated");
+		trade = tradeRepository.save(trade);
+		assertTrue(trade.getAccount().equals("Trade Account Updated"));
+
 		// Find
 		List<Trade> listResult = tradeRepository.findAll();
 		assertTrue(listResult.size() > 0);
+
+		// Find by id
+		Optional<Trade> optional = tradeRepository.findById(trade.getId());
+		assertTrue(optional.isPresent());
 	}
 }

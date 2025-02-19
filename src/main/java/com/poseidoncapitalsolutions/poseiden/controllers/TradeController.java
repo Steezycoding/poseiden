@@ -1,20 +1,22 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.TradeDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
 import com.poseidoncapitalsolutions.poseiden.services.TradeService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
 @Controller
 public class TradeController {
+    private final Logger logger = LoggerFactory.getLogger(TradeController.class);
+
     private final TradeService tradeService;
 
     public TradeController(TradeService tradeService) {
@@ -32,14 +34,19 @@ public class TradeController {
     }
 
     @GetMapping("/trade/add")
-    public String addUser(Trade bid) {
+    public String addUser(Model model) {
+        model.addAttribute("trade", new TradeDTO());
         return "trade/add";
     }
 
     @PostMapping("/trade/validate")
-    public String validate(@Valid Trade trade, BindingResult result, Model model) {
-        // TODO: check data valid and save to db, after saving return Trade list
-        return "trade/add";
+    public String validate(@Valid @ModelAttribute("trade") TradeDTO tradeDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("Trade Add form has errors {}", result.getAllErrors());
+            return "trade/add";
+        }
+        tradeService.save(tradeDTO);
+        return "redirect:/trade/list";
     }
 
     @GetMapping("/trade/update/{id}")

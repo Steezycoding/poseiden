@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.TradeDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
 import com.poseidoncapitalsolutions.poseiden.repositories.TradeRepository;
 import jakarta.transaction.Transactional;
@@ -18,5 +19,9 @@ public class TradeService {
 
 	public List<Trade> getAll() {
 		return tradeRepository.findAll();
+	}
+
+	public Trade save(TradeDTO trade) {
+		return tradeRepository.save(trade.toEntity());
 	}
 }

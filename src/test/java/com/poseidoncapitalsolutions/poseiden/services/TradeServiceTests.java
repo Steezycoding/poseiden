@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.TradeDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
 import com.poseidoncapitalsolutions.poseiden.repositories.TradeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +57,36 @@ public class TradeServiceTests {
 			assertThat(result).contains(dummyTrade, dummyTrade2);
 
 			verify(tradeRepository, times(1)).findAll();
+			verifyNoMoreInteractions(tradeRepository);
+		}
+	}
+
+	@Nested
+	@DisplayName("save() Tests")
+	class SaveTests {
+		private TradeDTO dummyTradeDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyTradeDTO = new TradeDTO();
+			dummyTradeDTO.setAccount("Account 1");
+			dummyTradeDTO.setType("Trade Type 1");
+			dummyTradeDTO.setBuyQuantity(1.0);
+
+			dummyTrade.setId(null);
+		}
+
+		@Test
+		@DisplayName("Should save a trade")
+		public void shouldSaveTrade() {
+			when(tradeRepository.save(any(Trade.class))).thenReturn(dummyTrade);
+
+			Trade result = tradeService.save(dummyTradeDTO);
+
+			assertThat(result).isNotNull();
+			assertThat(result).isEqualTo(dummyTrade);
+
+			verify(tradeRepository, times(1)).save(dummyTrade);
 			verifyNoMoreInteractions(tradeRepository);
 		}
 	}

@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,8 +29,17 @@ public class RuleTests {
 		assertNotNull(rule.getId());
 		assertTrue(rule.getName().equals("Rule Name"));
 
+		// Update
+		rule.setDescription("Description Updated");
+		rule = ruleNameRepository.save(rule);
+		assertTrue(rule.getDescription().equals("Description Updated"));
+
 		// Find
 		List<RuleName> listResult = ruleNameRepository.findAll();
 		assertTrue(listResult.size() > 0);
+
+		// Find by id
+		Optional<RuleName> optional = ruleNameRepository.findById(rule.getId());
+		assertTrue(optional.isPresent());
 	}
 }

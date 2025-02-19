@@ -36,4 +36,15 @@ public class RuleNameDTO {
 		ruleName.setSqlPart(sqlPart);
 		return ruleName;
 	}
+
+	public RuleNameDTO fromEntity(RuleName ruleName) {
+		this.id = ruleName.getId();
+		this.name = ruleName.getName();
+		this.description = ruleName.getDescription();
+		this.json = ruleName.getJson();
+		this.template = ruleName.getTemplate();
+		this.sqlStr = ruleName.getSqlStr();
+		this.sqlPart = ruleName.getSqlPart();
+		return this;
+	}
 }

@@ -34,4 +34,13 @@ public class RatingDTO {
 		rating.setOrderNumber(orderNumber);
 		return rating;
 	}
+
+	public RatingDTO fromEntity(Rating rating) {
+		this.id = rating.getId();
+		this.moodysRating = rating.getMoodysRating();
+		this.sandPRating = rating.getSandPRating();
+		this.fitchRating = rating.getFitchRating();
+		this.orderNumber = rating.getOrderNumber();
+		return this;
+	}
 }

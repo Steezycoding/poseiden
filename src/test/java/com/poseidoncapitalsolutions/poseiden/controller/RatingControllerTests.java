@@ -4,6 +4,7 @@ import com.poseidoncapitalsolutions.poseiden.controllers.RatingController;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.RatingDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Rating;
 import com.poseidoncapitalsolutions.poseiden.services.RatingService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -142,6 +143,76 @@ public class RatingControllerTests {
 							.param("orderNumber", ""))
 					.andExpect(status().is2xxSuccessful())
 					.andExpect(view().name("rating/add"));
+
+			verifyNoInteractions(ratingService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/rating/update/{id} Tests")
+	class UpdateRatingTests {
+		@Test
+		@DisplayName("GET /rating/update/{id} : Should return the 'rating/update' view with the rating data")
+		public void showRatingUpdateFormTest() throws Exception {
+			when(ratingService.getById(anyInt())).thenReturn(dummyRating);
+
+			mockMvc.perform(get("/rating/update/1"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("rating/update"))
+					.andExpect(model().attributeExists("rating"))
+					.andExpect(model().attribute("rating", hasProperty("id", is(dummyRating.getId()))))
+					.andExpect(model().attribute("rating", hasProperty("moodysRating", is(dummyRating.getMoodysRating()))))
+					.andExpect(model().attribute("rating", hasProperty("sandPRating", is(dummyRating.getSandPRating()))))
+					.andExpect(model().attribute("rating", hasProperty("fitchRating", is(dummyRating.getFitchRating()))))
+					.andExpect(model().attribute("rating", hasProperty("orderNumber", is(dummyRating.getOrderNumber()))));
+
+			verify(ratingService, times(1)).getById(1);
+			verifyNoMoreInteractions(ratingService);
+		}
+
+		@Test
+		@DisplayName("GET /rating/update/{id} : Should handle an exception when the rating is not found")
+		public void shouldThrowExceptionWhenRatingNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("Rating with id 1 not found")).when(ratingService).getById(1);
+
+			mockMvc.perform(get("/rating/update/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/rating/list"));
+
+			verify(ratingService, times(1)).getById(1);
+			verifyNoMoreInteractions(ratingService);
+		}
+
+		@Test
+		@DisplayName("POST /rating/update/{id} : Should update the rating and redirect to /rating/list")
+		public void shouldUpdateTheRating() throws Exception {
+			RatingDTO ratingDTO = new RatingDTO().fromEntity(dummyRating);
+			ratingDTO.setMoodysRating("Aa3");
+
+			mockMvc.perform(post("/rating/update/1")
+							.param("id", ratingDTO.getId().toString())
+							.param("moodysRating", ratingDTO.getMoodysRating())
+							.param("sandPRating", ratingDTO.getSandPRating())
+							.param("fitchRating", ratingDTO.getFitchRating())
+							.param("orderNumber", ratingDTO.getOrderNumber().toString()))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/rating/list"));
+
+			verify(ratingService, times(1)).update(eq(ratingDTO));
+			verifyNoMoreInteractions(ratingService);
+		}
+
+		@Test
+		@DisplayName("POST /rating/update/{id} : Should NOT update the rating with invalid collected form values")
+		public void shouldNotUpdateInvalidRatingForm() throws Exception {
+			mockMvc.perform(post("/rating/update/1")
+							.param("id", "")
+							.param("moodysRating", "")
+							.param("sandPRating", "")
+							.param("fitchRating", "")
+							.param("orderNumber", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("rating/update"));
 
 			verifyNoInteractions(ratingService);
 		}

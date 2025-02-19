@@ -3,6 +3,7 @@ package com.poseidoncapitalsolutions.poseiden.controllers;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.RatingDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Rating;
 import com.poseidoncapitalsolutions.poseiden.services.RatingService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,20 +53,33 @@ public class RatingController {
 
     @GetMapping("/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
-        // TODO: get Rating by Id and to model then show to the form
+        Rating rating = ratingService.getById(id);
+        RatingDTO ratingDTO = new RatingDTO().fromEntity(rating);
+
+        model.addAttribute("rating", ratingDTO);
         return "rating/update";
     }
 
     @PostMapping("/update/{id}")
-    public String updateRating(@PathVariable("id") Integer id, @Valid Rating rating,
-                             BindingResult result, Model model) {
-        // TODO: check required fields, if valid call service to update Rating and return Rating list
+    public String updateRating(@PathVariable("id") Integer id, @Valid RatingDTO ratingDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("Rating Update form has errors {}", result.getAllErrors());
+            return "rating/update";
+        }
+        ratingService.update(ratingDTO);
         return "redirect:/rating/list";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteRating(@PathVariable("id") Integer id, Model model) {
         // TODO: Find Rating by Id and delete the Rating, return to Rating list
+        return "redirect:/rating/list";
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public String handleEntityNotFoundException(EntityNotFoundException e, Model model) {
+        logger.error("Failed operation on rating: {}", e.getMessage());
+        model.addAttribute("error", e.getMessage());
         return "redirect:/rating/list";
     }
 }

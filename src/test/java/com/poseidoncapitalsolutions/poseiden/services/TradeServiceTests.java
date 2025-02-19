@@ -3,6 +3,7 @@ package com.poseidoncapitalsolutions.poseiden.services;
 import com.poseidoncapitalsolutions.poseiden.controllers.dto.TradeDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
 import com.poseidoncapitalsolutions.poseiden.repositories.TradeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class TradeServiceTests {
@@ -136,6 +138,41 @@ public class TradeServiceTests {
 			assertThat(result).isEqualTo(newTradeEntity);
 
 			verify(tradeRepository, times(1)).save(eq(newTradeEntity));
+			verifyNoMoreInteractions(tradeRepository);
+		}
+	}
+
+	@Nested
+	@DisplayName("delete() Tests")
+	class DeleteTests {
+		private final Integer tradeId = 1;
+
+		@Test
+		@DisplayName("Should delete a trade by id")
+		public void shouldDeleteTradeById() {
+			when(tradeRepository.existsById(anyInt())).thenReturn(true);
+
+			tradeService.delete(tradeId);
+
+			verify(tradeRepository, times(1)).existsById(eq(tradeId));
+			verify(tradeRepository, times(1)).deleteById(eq(tradeId));
+			verifyNoMoreInteractions(tradeRepository);
+		}
+
+		@Test
+		@DisplayName("Should throw EntityNotFoundException when trying to delete a non-existing trade")
+		public void shouldThrowEntityNotFoundExceptionWhenDeletingNonExistingTrade() {
+			when(tradeRepository.existsById(anyInt())).thenReturn(false);
+
+			RuntimeException exception = assertThrows(EntityNotFoundException.class, () -> {
+				tradeService.delete(tradeId);
+			});
+
+			String expectedExceptionMessage = String.format("Trade with id %s not found", tradeId);
+
+			assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
+
+			verify(tradeRepository, times(1)).existsById(eq(tradeId));
 			verifyNoMoreInteractions(tradeRepository);
 		}
 	}

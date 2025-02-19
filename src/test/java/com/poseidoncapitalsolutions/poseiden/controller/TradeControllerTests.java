@@ -232,4 +232,32 @@ public class TradeControllerTests {
 			verifyNoInteractions(tradeService);
 		}
 	}
+
+	@Nested
+	@DisplayName("/trade/delete/{id} Tests")
+	class DeleteTradeTests {
+		@Test
+		@DisplayName("GET /trade/delete/{id} : Should delete a trade and redirect to /trade/list")
+		public void deleteTradeTest_WithUser() throws Exception {
+			mockMvc.perform(get("/trade/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/trade/list"));
+
+			verify(tradeService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(tradeService);
+		}
+
+		@Test
+		@DisplayName("GET /trade/delete/{id} : Should handle an exception when the trade is not found")
+		public void shouldHandleEntityNotFoundException_WhenTradeIsNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("Trade with id 1 not found")).when(tradeService).delete(1);
+
+			mockMvc.perform(get("/trade/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/trade/list"));
+
+			verify(tradeService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(tradeService);
+		}
+	}
 }

@@ -34,4 +34,12 @@ public class TradeService {
 	public Trade update(TradeDTO tradeDTO) {
 		return tradeRepository.save(tradeDTO.toEntity());
 	}
+
+	public void delete(Integer id) {
+		if (tradeRepository.existsById(id)) {
+			tradeRepository.deleteById(id);
+		} else {
+			throw new EntityNotFoundException("Trade with id " + id + " not found");
+		}
+	}
 }

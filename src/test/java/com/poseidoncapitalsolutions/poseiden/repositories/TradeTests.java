@@ -10,6 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -45,5 +46,10 @@ public class TradeTests {
 		// Find by id
 		Optional<Trade> optional = tradeRepository.findById(trade.getId());
 		assertTrue(optional.isPresent());
+
+		// Delete
+		tradeRepository.deleteById(trade.getId());
+		Optional<Trade> deletedTrade = tradeRepository.findById(trade.getId());
+		assertThat(deletedTrade).isNotPresent();
 	}
 }

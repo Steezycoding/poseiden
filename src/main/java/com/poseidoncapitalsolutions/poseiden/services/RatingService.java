@@ -34,4 +34,12 @@ public class RatingService {
 	public Rating update(RatingDTO ratingDTO) {
 		return ratingRepository.save(ratingDTO.toEntity());
 	}
+
+	public void delete(Integer id) {
+		if (ratingRepository.existsById(id)) {
+			ratingRepository.deleteById(id);
+		} else {
+			throw new EntityNotFoundException("Rating with id " + id + " not found");
+		}
+	}
 }

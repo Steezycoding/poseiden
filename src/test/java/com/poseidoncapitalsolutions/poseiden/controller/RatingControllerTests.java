@@ -217,4 +217,45 @@ public class RatingControllerTests {
 			verifyNoInteractions(ratingService);
 		}
 	}
+
+	@Nested
+	@DisplayName("/rating/delete/{id} Tests")
+	class DeleteRatingTests {
+		@Test
+		@DisplayName("GET /rating/delete/{id} : Should delete the rating and redirect to /rating/list")
+		public void shouldDeleteTheRating() throws Exception {
+			mockMvc.perform(get("/rating/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/rating/list"));
+
+			verify(ratingService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(ratingService);
+		}
+
+		@Test
+		@DisplayName("GET /rating/delete/{id} : Should handle an exception when the rating is not found")
+		public void shouldThrowExceptionWhenRatingNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("Rating with id 1 not found")).when(ratingService).delete(1);
+
+			mockMvc.perform(get("/rating/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/rating/list"));
+
+			verify(ratingService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(ratingService);
+		}
+
+		@Test
+		@DisplayName("GET /rating/delete/{id} : Should throw an exception and redirect to list when the rating is not found")
+		public void givenRatingNotExists_whenDelete_thenThrowExceptionAndRedirect() throws Exception {
+			doThrow(new EntityNotFoundException("Rating with id 1 not found")).when(ratingService).delete(1);
+
+			mockMvc.perform(get("/rating/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/rating/list"));
+
+			verify(ratingService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(ratingService);
+		}
+	}
 }

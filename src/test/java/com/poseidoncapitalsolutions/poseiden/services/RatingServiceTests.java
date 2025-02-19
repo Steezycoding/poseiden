@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RatingDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Rating;
 import com.poseidoncapitalsolutions.poseiden.repositories.RatingRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,37 @@ public class RatingServiceTests {
 			assertThat(result).contains(dummyRating, dummyRating2);
 
 			verify(ratingRepository, times(1)).findAll();
+			verifyNoMoreInteractions(ratingRepository);
+		}
+	}
+
+	@Nested
+	@DisplayName("save() Tests")
+	class SaveRatingTests {
+		private RatingDTO dummyRatingDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyRatingDTO = new RatingDTO();
+			dummyRatingDTO.setMoodysRating("Aaa");
+			dummyRatingDTO.setSandPRating("AA");
+			dummyRatingDTO.setFitchRating("A+");
+			dummyRatingDTO.setOrderNumber(10);
+
+			dummyRating.setId(null);
+		}
+
+		@Test
+		@DisplayName("Should save a rating")
+		public void shouldSaveRating() {
+			when(ratingRepository.save(any(Rating.class))).thenReturn(dummyRating);
+
+			Rating rating = ratingService.save(dummyRatingDTO);
+
+			assertThat(rating).isNotNull();
+			assertThat(rating).isEqualTo(dummyRating);
+
+			verify(ratingRepository, times(1)).save(eq(dummyRating));
 			verifyNoMoreInteractions(ratingRepository);
 		}
 	}

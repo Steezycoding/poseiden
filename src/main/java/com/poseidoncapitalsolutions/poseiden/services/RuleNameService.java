@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RuleNameDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
 import com.poseidoncapitalsolutions.poseiden.repositories.RuleNameRepository;
 import jakarta.transaction.Transactional;
@@ -18,5 +19,9 @@ public class RuleNameService {
 
 	public List<RuleName> getAll() {
 		return ruleNameRepository.findAll();
+	}
+
+	public RuleName save(RuleNameDTO ruleNameDTO) {
+		return ruleNameRepository.save(ruleNameDTO.toEntity());
 	}
 }

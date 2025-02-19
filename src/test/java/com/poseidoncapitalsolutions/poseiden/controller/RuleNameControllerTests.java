@@ -1,6 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden.controller;
 
 import com.poseidoncapitalsolutions.poseiden.controllers.RuleNameController;
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RuleNameDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
 import com.poseidoncapitalsolutions.poseiden.services.RuleNameService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -53,10 +55,10 @@ public class RuleNameControllerTests {
 	}
 
 	@Nested
-	@DisplayName("/rulename/list Tests")
+	@DisplayName("/ruleName/list Tests")
 	class GetAllRulenamesTests {
 		@Test
-		@DisplayName("GET /rulename/list : Should return the 'rulename/list' view with a list of rulenames")
+		@DisplayName("GET /ruleName/list : Should return the 'rulename/list' view with a list of rulenames")
 		public void getAllRulnames_WithUser() throws Exception {
 			RuleName dummyRuleName2 = new RuleName(2, "Rule 1", "Description", "{\"field\": \"JSON Value\"}", "Template 1", "SELECT * FROM table", "WHERE id = 1");
 			List<RuleName> list = List.of(dummyRuleName, dummyRuleName2);
@@ -99,4 +101,75 @@ public class RuleNameControllerTests {
 			verifyNoMoreInteractions(ruleNameService);
 		}
 	}
+
+	@Nested
+	@DisplayName("/ruleName/add Tests")
+	class AddRuleNameFormTests {
+		@Test
+		@DisplayName("GET /ruleName/add : Should return the 'rulename/add' view with a new RuleNameDTO")
+		public void addRuleForm() throws Exception {
+			mockMvc.perform(get("/ruleName/add"))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("ruleName/add"))
+					.andExpect(model().attributeExists("ruleName"));
+		}
+	}
+
+	@Nested
+	@DisplayName("/ruleName/validate Tests")
+	class ValidateRuleNameTests {
+		private RuleNameDTO dummyRuleNameDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyRuleNameDTO = new RuleNameDTO();
+			dummyRuleNameDTO.setName("Rule 1");
+			dummyRuleNameDTO.setDescription("Description");
+			dummyRuleNameDTO.setJson("{\"field\": \"JSON Value\"}");
+			dummyRuleNameDTO.setTemplate("Template 1");
+			dummyRuleNameDTO.setSqlStr("SELECT * FROM table");
+			dummyRuleNameDTO.setSqlPart("WHERE id = 1");
+		}
+
+		@Test
+		@DisplayName("POST /ruleName/validate : Should save a rule and redirect to /ruleName/list")
+		public void shouldValidateValidRulenameAddForm() throws Exception {
+			mockMvc.perform(post("/ruleName/validate")
+					.param("name", dummyRuleNameDTO.getName())
+					.param("description", dummyRuleNameDTO.getDescription())
+					.param("json", dummyRuleNameDTO.getJson())
+					.param("template", dummyRuleNameDTO.getTemplate())
+					.param("sqlStr", dummyRuleNameDTO.getSqlStr())
+					.param("sqlPart", dummyRuleNameDTO.getSqlPart()))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/ruleName/list"));
+
+			verify(ruleNameService, times(1)).save(eq(dummyRuleNameDTO));
+			verifyNoMoreInteractions(ruleNameService);
+		}
+
+		@Test
+		@DisplayName("POST /ruleName/validate : Should return the 'rulename/add' view with errors when RuleNameDTO is invalid")
+		public void validateRuleName_WithErrors() throws Exception {
+			mockMvc.perform(post("/ruleName/validate")
+					.param("name", "")
+					.param("description", "")
+					.param("json", "")
+					.param("template", "")
+					.param("sqlStr", "")
+					.param("sqlPart", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("ruleName/add"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "name"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "description"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "json"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "template"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "sqlStr"))
+					.andExpect(model().attributeHasFieldErrors("ruleName", "sqlPart"));
+
+			verifyNoInteractions(ruleNameService);
+		}
+	}
+
+
 }

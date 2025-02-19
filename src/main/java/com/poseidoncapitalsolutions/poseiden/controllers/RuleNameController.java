@@ -1,20 +1,22 @@
 package com.poseidoncapitalsolutions.poseiden.controllers;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RuleNameDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
 import com.poseidoncapitalsolutions.poseiden.services.RuleNameService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
 @Controller
 public class RuleNameController {
+    private final Logger logger = LoggerFactory.getLogger(RuleNameController.class);
+
     private final RuleNameService ruleNameService;
 
     public RuleNameController(RuleNameService ruleNameService) {
@@ -32,14 +34,19 @@ public class RuleNameController {
     }
 
     @GetMapping("/ruleName/add")
-    public String addRuleForm(RuleName bid) {
+    public String addRuleForm(Model model) {
+        model.addAttribute("ruleName", new RuleNameDTO());
         return "ruleName/add";
     }
 
     @PostMapping("/ruleName/validate")
-    public String validate(@Valid RuleName ruleName, BindingResult result, Model model) {
-        // TODO: check data valid and save to db, after saving return RuleName list
-        return "ruleName/add";
+    public String validate(@Valid @ModelAttribute("ruleName") RuleNameDTO ruleName, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("RuleName Add form has errors {}", result.getAllErrors());
+            return "ruleName/add";
+        }
+        ruleNameService.save(ruleName);
+        return "redirect:/ruleName/list";
     }
 
     @GetMapping("/ruleName/update/{id}")

@@ -34,4 +34,12 @@ public class RuleNameService {
 	public RuleName update(RuleNameDTO ruleNameDTO) {
 		return ruleNameRepository.save(ruleNameDTO.toEntity());
 	}
+
+	public void delete(Integer id) {
+		if (ruleNameRepository.existsById(id)) {
+			ruleNameRepository.deleteById(id);
+		} else {
+			throw new EntityNotFoundException("RuleName with id " + id + " not found");
+		}
+	}
 }

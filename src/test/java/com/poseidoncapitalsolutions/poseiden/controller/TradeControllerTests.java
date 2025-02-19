@@ -1,6 +1,7 @@
 package com.poseidoncapitalsolutions.poseiden.controller;
 
 import com.poseidoncapitalsolutions.poseiden.controllers.TradeController;
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.TradeDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.Trade;
 import com.poseidoncapitalsolutions.poseiden.services.TradeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -92,6 +94,71 @@ public class TradeControllerTests {
 
 			verify(tradeService, times(1)).getAll();
 			verifyNoMoreInteractions(tradeService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/trade/add Tests")
+	class AddTradeTests {
+		@Test
+		@DisplayName("GET /trade/add : Should return the 'trade/add' view with a new empty form")
+		public void addTradeTest_WithUser() throws Exception {
+			Authentication authentication = new TestingAuthenticationToken(
+					"user",
+					null,
+					Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+			);
+
+			mockMvc.perform(get("/trade/add").principal(authentication))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("trade/add"))
+					.andExpect(model().attributeExists("trade"));
+
+			verifyNoInteractions(tradeService);
+		}
+	}
+
+	@Nested
+	@DisplayName("/trade/validate Tests")
+	class ValidateTradeTests {
+		private TradeDTO dummyTradeDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyTradeDTO = new TradeDTO();
+			dummyTradeDTO.setAccount("Account 1");
+			dummyTradeDTO.setType("Trade Type 1");
+			dummyTradeDTO.setBuyQuantity(1.0);
+		}
+
+		@Test
+		@DisplayName("POST /trade/validate : Should save a trade and redirect to /trade/list")
+		public void shouldValidateValidRatingAddForm() throws Exception {
+			mockMvc.perform(post("/trade/validate")
+							.param("account", dummyTradeDTO.getAccount())
+							.param("type", dummyTradeDTO.getType())
+							.param("buyQuantity", String.valueOf(dummyTradeDTO.getBuyQuantity())))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/trade/list"));
+
+			verify(tradeService, times(1)).save(eq(dummyTradeDTO));
+			verifyNoMoreInteractions(tradeService);
+		}
+
+		@Test
+		@DisplayName("POST /trade/validate : Should return the 'trade/add' view with errors when the form is invalid")
+		public void shouldReturnTradeAddViewWithErrors_WhenTradeAddFormIsInvalid() throws Exception {
+			mockMvc.perform(post("/trade/validate")
+							.param("account", "")
+							.param("type", "")
+							.param("buyQuantity", ""))
+					.andExpect(status().is2xxSuccessful())
+					.andExpect(view().name("trade/add"))
+					.andExpect(model().attributeHasFieldErrors("trade", "account"))
+					.andExpect(model().attributeHasFieldErrors("trade", "type"))
+					.andExpect(model().attributeHasFieldErrors("trade", "buyQuantity"));
+
+			verifyNoInteractions(tradeService);
 		}
 	}
 }

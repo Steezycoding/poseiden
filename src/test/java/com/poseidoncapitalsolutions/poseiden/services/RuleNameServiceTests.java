@@ -1,5 +1,6 @@
 package com.poseidoncapitalsolutions.poseiden.services;
 
+import com.poseidoncapitalsolutions.poseiden.controllers.dto.RuleNameDTO;
 import com.poseidoncapitalsolutions.poseiden.domain.RuleName;
 import com.poseidoncapitalsolutions.poseiden.repositories.RuleNameRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +63,38 @@ public class RuleNameServiceTests {
 			assertThat(result).contains(dummyRuleName, dummyRuleName2);
 
 			verify(ruleNameRepository, times(1)).findAll();
+			verifyNoMoreInteractions(ruleNameRepository);
+		}
+	}
+
+	@Nested
+	class SaveRuleNameTests {
+		private RuleNameDTO dummyRuleNameDTO;
+
+		@BeforeEach
+		public void setUp() {
+			dummyRuleNameDTO = new RuleNameDTO();
+			dummyRuleNameDTO.setName("Rule 1");
+			dummyRuleNameDTO.setDescription("Description");
+			dummyRuleNameDTO.setJson("{\"field\": \"JSON Value\"}");
+			dummyRuleNameDTO.setTemplate("Template 1");
+			dummyRuleNameDTO.setSqlStr("SELECT * FROM table");
+			dummyRuleNameDTO.setSqlPart("WHERE id = 1");
+
+			dummyRuleName.setId(null);
+		}
+
+		@Test
+		@DisplayName("Should save a rulename")
+		public void shouldSaveRuleName() {
+			when(ruleNameRepository.save(dummyRuleName)).thenReturn(dummyRuleName);
+
+			RuleName result = ruleNameService.save(dummyRuleNameDTO);
+
+			assertThat(result).isNotNull();
+			assertThat(result).isEqualTo(dummyRuleName);
+
+			verify(ruleNameRepository, times(1)).save(dummyRuleName);
 			verifyNoMoreInteractions(ruleNameRepository);
 		}
 	}

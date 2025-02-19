@@ -171,4 +171,40 @@ public class RuleNameServiceTests {
 			verifyNoMoreInteractions(ruleNameRepository);
 		}
 	}
+
+	@Nested
+	@DisplayName("delete() Tests")
+	class DeleteRuleNameTests {
+		private final Integer ruleNameId = 1;
+
+		@Test
+		@DisplayName("Should delete a rulename")
+		public void shouldDeleteRuleName() {
+
+			when(ruleNameRepository.existsById(anyInt())).thenReturn(true);
+
+			ruleNameService.delete(ruleNameId);
+
+			verify(ruleNameRepository, times(1)).existsById(ruleNameId);
+			verify(ruleNameRepository, times(1)).deleteById(ruleNameId);
+			verifyNoMoreInteractions(ruleNameRepository);
+		}
+
+		@Test
+		@DisplayName("Should throw EntityNotFoundException when deleting a rulename that does not exist")
+		public void shouldThrowEntityNotFoundExceptionWhenDeletingRuleNameThatDoesNotExist() {
+			when(ruleNameRepository.existsById(anyInt())).thenReturn(false);
+
+			RuntimeException exception = assertThrows(EntityNotFoundException.class, () -> {
+				ruleNameService.delete(ruleNameId);
+			});
+
+			String expectedExceptionMessage = String.format("RuleName with id %s not found", ruleNameId);
+
+			assertThat(exception.getMessage()).isEqualTo(expectedExceptionMessage);
+
+			verify(ruleNameRepository, times(1)).existsById(ruleNameId);
+			verifyNoMoreInteractions(ruleNameRepository);
+		}
+	}
 }

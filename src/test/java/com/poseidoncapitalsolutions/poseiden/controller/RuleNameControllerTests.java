@@ -251,4 +251,32 @@ public class RuleNameControllerTests {
 			verifyNoInteractions(ruleNameService);
 		}
 	}
+
+	@Nested
+	@DisplayName("/ruleName/delete/{id} Tests")
+	class DeleteRuleNameTests {
+		@Test
+		@DisplayName("GET /ruleName/delete/{id} : Should delete a rule and redirect to /ruleName/list")
+		public void deleteRuleName() throws Exception {
+			mockMvc.perform(get("/ruleName/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/ruleName/list"));
+
+			verify(ruleNameService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(ruleNameService);
+		}
+
+		@Test
+		@DisplayName("GET /ruleName/delete/{id} : Should handle an exception when the ruleName is not found")
+		public void shouldThrowExceptionWhenRuleNameNotFound() throws Exception {
+			doThrow(new EntityNotFoundException("RuleName with id 1 not found")).when(ruleNameService).delete(1);
+
+			mockMvc.perform(get("/ruleName/delete/1"))
+					.andExpect(status().is3xxRedirection())
+					.andExpect(redirectedUrl("/ruleName/list"));
+
+			verify(ruleNameService, times(1)).delete(eq(1));
+			verifyNoMoreInteractions(ruleNameService);
+		}
+	}
 }

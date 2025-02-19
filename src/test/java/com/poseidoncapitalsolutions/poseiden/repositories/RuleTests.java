@@ -10,6 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,5 +42,10 @@ public class RuleTests {
 		// Find by id
 		Optional<RuleName> optional = ruleNameRepository.findById(rule.getId());
 		assertTrue(optional.isPresent());
+
+		// Delete
+		ruleNameRepository.deleteById(rule.getId());
+		Optional<RuleName> deletedTrade = ruleNameRepository.findById(rule.getId());
+		assertThat(deletedTrade).isNotPresent();
 	}
 }

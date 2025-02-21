@@ -65,7 +65,7 @@ CREATE TABLE curvepoint (
   value DOUBLE ,
   creation_date TIMESTAMP ,
 
-  PRIMARY KEY (Id)
+  PRIMARY KEY (id)
 );
 
 DROP TABLE IF EXISTS rating;

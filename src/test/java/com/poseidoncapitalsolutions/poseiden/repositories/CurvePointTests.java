@@ -10,7 +10,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -37,11 +39,13 @@ public class CurvePointTests {
 		List<CurvePoint> listResult = curvePointRepository.findAll();
 		assertTrue(listResult.size() > 0);
 
-		// Delete
-		Integer id = curvePoint.getId();
-		curvePointRepository.delete(curvePoint);
-		Optional<CurvePoint> curvePointList = curvePointRepository.findById(id);
-		assertFalse(curvePointList.isPresent());
-	}
+		// Find by Id
+		Optional<CurvePoint> optional = curvePointRepository.findById(curvePoint.getId());
+		assertTrue(optional.isPresent());
 
+		// Delete
+		curvePointRepository.delete(curvePoint);
+		Optional<CurvePoint> bidEmpty = curvePointRepository.findById(curvePoint.getId());
+		assertThat(bidEmpty).isNotPresent();
+	}
 }

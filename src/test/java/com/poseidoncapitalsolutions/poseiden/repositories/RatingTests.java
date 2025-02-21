@@ -10,7 +10,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -21,7 +23,7 @@ public class RatingTests {
 
 	@Test
 	public void ratingTest() {
-		Rating rating = new Rating("Moodys Rating", "Sand PRating", "Fitch Rating", 10);
+		Rating rating = new Rating(null,"Aaa", "AA", "A+", 10);
 
 		// Save
 		rating = ratingRepository.save(rating);
@@ -37,10 +39,14 @@ public class RatingTests {
 		List<Rating> listResult = ratingRepository.findAll();
 		assertTrue(listResult.size() > 0);
 
+		// FingById
+		Optional<Rating> optional = ratingRepository.findById(rating.getId());
+		assertTrue(optional.isPresent());
+
 		// Delete
-		Integer id = rating.getId();
 		ratingRepository.delete(rating);
-		Optional<Rating> ratingList = ratingRepository.findById(id);
-		assertFalse(ratingList.isPresent());
+		Optional<Rating> deletedRating = ratingRepository.findById(rating.getId());
+		assertThat(deletedRating).isNotPresent();
+
 	}
 }

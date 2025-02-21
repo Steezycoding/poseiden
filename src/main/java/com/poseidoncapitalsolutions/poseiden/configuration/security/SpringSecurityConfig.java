@@ -25,7 +25,7 @@ public class SpringSecurityConfig {
 		return http.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/css/**").permitAll()
 						.requestMatchers("/app/login").anonymous()
-						.requestMatchers("/user/**").hasRole("ADMIN")
+						.requestMatchers("/user/**", "/admin/**").hasRole("ADMIN")
 						.anyRequest().authenticated())
 				.formLogin((form) -> form
 						.loginPage("/app/login")

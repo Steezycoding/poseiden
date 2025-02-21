@@ -10,7 +10,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -21,26 +23,33 @@ public class TradeTests {
 
 	@Test
 	public void tradeTest() {
-		Trade trade = new Trade("Trade Account", "Type");
+		Trade trade = new Trade();
+		trade.setId(null);
+		trade.setAccount("Trade Account");
+		trade.setType("Trade Type");
+		trade.setBuyQuantity(1.0);
 
 		// Save
 		trade = tradeRepository.save(trade);
-		assertNotNull(trade.getTradeId());
+		assertNotNull(trade.getId());
 		assertTrue(trade.getAccount().equals("Trade Account"));
 
 		// Update
-		trade.setAccount("Trade Account Update");
+		trade.setAccount("Trade Account Updated");
 		trade = tradeRepository.save(trade);
-		assertTrue(trade.getAccount().equals("Trade Account Update"));
+		assertTrue(trade.getAccount().equals("Trade Account Updated"));
 
 		// Find
 		List<Trade> listResult = tradeRepository.findAll();
 		assertTrue(listResult.size() > 0);
 
+		// Find by id
+		Optional<Trade> optional = tradeRepository.findById(trade.getId());
+		assertTrue(optional.isPresent());
+
 		// Delete
-		Integer id = trade.getTradeId();
-		tradeRepository.delete(trade);
-		Optional<Trade> tradeList = tradeRepository.findById(id);
-		assertFalse(tradeList.isPresent());
+		tradeRepository.deleteById(trade.getId());
+		Optional<Trade> deletedTrade = tradeRepository.findById(trade.getId());
+		assertThat(deletedTrade).isNotPresent();
 	}
 }

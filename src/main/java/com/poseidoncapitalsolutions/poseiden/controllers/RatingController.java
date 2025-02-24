@@ -61,7 +61,7 @@ public class RatingController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateRating(@PathVariable("id") Integer id, @Valid RatingDTO ratingDTO, BindingResult result) {
+    public String updateRating(@PathVariable("id") Integer id, @Valid @ModelAttribute("rating") RatingDTO ratingDTO, BindingResult result) {
         if (result.hasErrors()) {
             logger.error("Rating Update form has errors {}", result.getAllErrors());
             return "rating/update";

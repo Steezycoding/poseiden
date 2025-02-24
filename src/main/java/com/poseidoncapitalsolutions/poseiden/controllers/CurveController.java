@@ -61,7 +61,7 @@ public class CurveController {
     }
 
     @PostMapping("/update/{id}")
-    public String updateBid(@PathVariable("id") Integer id, @Valid CurvePointDTO curvePointDTO, BindingResult result) {
+    public String updateBid(@PathVariable("id") Integer id, @Valid @ModelAttribute("curvePoint") CurvePointDTO curvePointDTO, BindingResult result) {
         if (result.hasErrors()) {
             logger.error("CurvePoint Update form has errors {}", result.getAllErrors());
             return "curvePoint/update";

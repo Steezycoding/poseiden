@@ -20,6 +20,12 @@ public class SpringSecurityConfig {
 		this.customUserDetailsService = customUserDetailsService;
 	}
 
+	/**
+	 * Configures the security filter chain that carries out the security and defines the access rules within the application
+	 * @param http
+	 * @return SecurityFilterChain object that defines the security filter chain
+	 * @throws Exception
+	 */
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		return http.authorizeHttpRequests(auth -> auth
@@ -42,6 +48,13 @@ public class SpringSecurityConfig {
 				.build();
 	}
 
+	/**
+	 * Configures a manager to use the customUserDetailsService and the BCryptPasswordEncoder
+	 * @param http
+	 * @param bCryptPasswordEncoder
+	 * @return AuthenticationManager object that is used to authenticate users
+	 * @throws Exception
+	 */
 	@Bean
 	public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder
 			bCryptPasswordEncoder) throws Exception {

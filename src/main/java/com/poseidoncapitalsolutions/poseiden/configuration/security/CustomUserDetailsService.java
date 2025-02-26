@@ -22,6 +22,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 		this.userService = userService;
 	}
 
+	/**
+	 * Loads a user from the database by username
+	 * @param username
+	 * @return A security User object with username, password and authorities
+	 * @throws UsernameNotFoundException if user not found
+	 */
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User user = userService.getByUsername(username);
@@ -31,6 +37,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getGrantedAuthorities(user.getRole()));
 	}
 
+	/**
+	 * Creates a list of authorities for a user from the role stored in the database
+	 * @param role
+	 * @return List of authorities
+	 */
 	private List<GrantedAuthority> getGrantedAuthorities(String role) {
 		List<GrantedAuthority> authorities = new ArrayList<>();
 		authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
